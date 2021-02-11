@@ -1,0 +1,7 @@
+bandstructure.dat
+OUTCAR
+PROCAR
+PbS/
+eff-mass-env/
+data/
+effmass_outputs.py
