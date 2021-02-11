@@ -13,6 +13,35 @@ import numpy as np
 # self.number_of_bands = vasp_data.number_of_bands
 # self.number_of_ions = vasp_data.number_of_ions
 # number_of_kpoints = vasp_data.number_of_k_points
+# vasp_data_energies = np.array( [ band.energy for band in np.ravel( vasp_data.bands ) ] )
+# vasp_data_occupancies = np.array( [ band.occupancy for band in np.ravel( vasp_data.bands ) ] )
+
+def get_eigen_values(info):
+    '''
+    '''
+    start = ' #st  Spin   Eigenvalue      Occupation\n'
+    end = 'Energy [eV]:'
+    #end = '^\s*$'
+    start_idx = info.index(start)
+    end_idx = info.index(end)
+
+    # idx = info.index(match)
+    #
+    # eigen_info = []
+    # for i in info[idx:]:
+    #     if i == '':
+    #         break
+    #     else:
+    #         eigen_info.extend(i)
+
+    #result = re.search(start + '(.*)' + end, info)
+    #print(result.group(1))
+
+    #eigen_info = [while(i != ''): i for i in info[idx:]]
+
+    eigen_info = info[start_idx:end_idx - 1]
+    eigen_values = eigen_info
+    return(eigen_values)
 
 def get_lattice_vectors(info):
     '''TODO: Original lattice vector had 8 decimal places
@@ -30,6 +59,7 @@ def get_lattice_vectors(info):
     lattice_vector = lattice_vector_info[1:4]
     reciprocal_lattice_vector = lattice_vector_info[-3:]
 
+    # zip for easy iteration
     zipped_vectors = zip(lattice_vector, reciprocal_lattice_vector)
 
     return(zipped_vectors)
@@ -44,7 +74,7 @@ def get_num_bands():
     '''
 
     # read the first line that containes the nmber of bands
-    f = open('bandstructure.dat', 'r')
+    f = open('./PbS/bands-static/bandstructure', 'r')
     info_line = f.readline()
     f.close()
 
@@ -86,7 +116,7 @@ def get_num_ions(info):
     return(num_ions)
 
 def get_kpoints(info, num_kpoints):
-    '''
+    '''TODO: The data from eigen values has more decimal points
     '''
 
     # get the kpoints data from the info data
@@ -108,10 +138,14 @@ def get_num_spinchannels(info):
     '''
     return(num_spinchannels)
 
+def iterate_kpoints():
+    '''
+    '''
+
 def load_band_data():
     '''
     '''
-    data = np.array(np.loadtxt('bandstructure.dat'))
+    data = np.array(np.loadtxt('./PbS/bands-static/bandstructure'))
     return(data)
 
 def load_octo_info():
@@ -119,30 +153,44 @@ def load_octo_info():
     '''
     f = open('./PbS/bands-static/info', 'r')
 
-    # creates a list of lines rather than a long string with newline characters
-    info = f.read().splitlines()
-    f.close()
-    return(info)
+    # read as single string separated by newline characters
+    info = f.read()
 
+    # creates a list of lines rather than a long string with newline characters
+    info_list = info.splitlines()
+    f.close()
+    return(info_list, info)
+
+def gen_outcar(zipped_vectors):
+    f = open('OUTCAR', 'w')
+    direct_header = '     direct lattice vectors'
+    f.write(direct_header.ljust(46) + 'reciprocal lattice vectors\n')
+    for vec, recp_vect in zipped_vectors:
+        f.write(vec + ' ' + recp_vect + '\n')
+    f.close()
+
+def gen_procar():
+    '''
+    '''
+    
 def main():
     num_bands = get_num_bands()
-    info = load_octo_info()
-    zipped_vectors = get_lattice_vectors(info)
-    num_kpoints = get_num_kpoints(info)
-    num_ions = get_num_ions(info)
-    kpoints = get_kpoints(info, num_kpoints)
-    print(kpoints)
-
-
-    f = open('OUTCAR', 'w')
-    f.write("      direct lattice vectors                 reciprocal lattice vectors\n")
-    for vec, recp_vect in zipped_vectors:
-        f.write(' ' + vec + ' ' + recp_vect + '\n')
-    f.close()
+    info_list, info = load_octo_info()
+    zipped_vectors = get_lattice_vectors(info_list)
+    num_kpoints = get_num_kpoints(info_list)
+    num_ions = get_num_ions(info_list)
+    kpoints = get_kpoints(info_list, num_kpoints)
+    eigen_values = get_eigen_values(info)
+    print(eigen_values)
+    gen_outcar(zipped_vectors)
 
     f = open('PROCAR', 'w')
     f.write('PROCAR new format' + '\n')
     f.write('# of k-points: {}          # of bands:  {}         # of ions:   {}\n\n'.format(num_kpoints, num_bands, num_ions))
+
+
+    iterate_kpoints(eigen_values)
+
     f.write(' k-point    1 :    {:.8f} {:.8f} {:.8f}     weight = {:.8f}\n\n'.format(0.00000000, 0.00000000, 0.00000000, 0.00462963))
     f.write(' band   {} # energy  {:.8f} # occ.  {:.8f}\n\n'.format(1, -10.30320759, 1.00000000))
     f.write('ion      s      p      d    tot\n')
