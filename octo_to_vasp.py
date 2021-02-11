@@ -85,11 +85,24 @@ def get_num_ions(info):
     num_ions = str(len(info[start_idx + 1:end_idx]))
     return(num_ions)
 
-def get_kpoints(info):
+def get_kpoints(info, num_kpoints):
     '''
     '''
+
+    # get the kpoints data from the info data
+    # there are three text header lines that need to be skipped
+    kpoint_idx = info.index('List of k-points:') + 3
+    kpoint_info = info[kpoint_idx:kpoint_idx + int(num_kpoints)]
+
+    # split each item in list with space delimiter and remove the kpoint number
+    # of each item
+    kpoints = [x.split()[1:] for x in kpoint_info]
+
+    # zip for easy iteration
+    kpoints = zip(kpoints)
+
     return(kpoints)
-    
+
 def get_num_spinchannels(info):
     '''
     '''
@@ -117,6 +130,8 @@ def main():
     zipped_vectors = get_lattice_vectors(info)
     num_kpoints = get_num_kpoints(info)
     num_ions = get_num_ions(info)
+    kpoints = get_kpoints(info, num_kpoints)
+    print(kpoints)
 
 
     f = open('OUTCAR', 'w')
