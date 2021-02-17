@@ -16,36 +16,39 @@ import numpy as np
 # vasp_data_energies = np.array( [ band.energy for band in np.ravel( vasp_data.bands ) ] )
 # vasp_data_occupancies = np.array( [ band.occupancy for band in np.ravel( vasp_data.bands ) ] )
 
-def get_eigen_values(info):
+def get_eigen_table(info):
     '''
     '''
-    start = ' #st  Spin   Eigenvalue      Occupation\n'
+    start = ' #st  Spin   Eigenvalue      Occupation'
     end = 'Energy [eV]:'
     #end = '^\s*$'
     start_idx = info.index(start)
     end_idx = info.index(end)
+    eigen_table = info[start_idx + 1:end_idx - 1]
+    return(eigen_table)
 
-    # idx = info.index(match)
-    #
-    # eigen_info = []
-    # for i in info[idx:]:
-    #     if i == '':
-    #         break
-    #     else:
-    #         eigen_info.extend(i)
+def get_eigen_values(num_bands, eigen_table):
+    '''
+    '''
 
-    #result = re.search(start + '(.*)' + end, info)
-    #print(result.group(1))
+    # remove the kpoint line info and create a list of lists consisting of
+    # each row and column of the eigen table
+    k_removed_list = [line for line in eigen_table if '#k' not in line]
+    eigen_list_split = [line.split() for line in k_removed_list]
 
-    #eigen_info = [while(i != ''): i for i in info[idx:]]
+    # save the engergies and occupancies to a new list if the line is not empty
+    energies = [line[2] for line in eigen_list_split if line]
+    occupancies = [line[3] for line in eigen_list_split if line]
 
-    eigen_info = info[start_idx:end_idx - 1]
-    eigen_values = eigen_info
+    # zip for easy iteration
+    eigen_values = zip(energies, occupancies)
+
     return(eigen_values)
 
 def get_lattice_vectors(info):
     '''TODO: Original lattice vector had 8 decimal places
     '''
+
     match = '  Lattice Vectors [A]'
 
     # get the first index of a list with the matched text
@@ -169,29 +172,18 @@ def gen_outcar(zipped_vectors):
         f.write(vec + ' ' + recp_vect + '\n')
     f.close()
 
-def gen_procar():
+def gen_procar(num_kpoints, num_bands, num_ions, kpoints, eigen_values):
     '''
     '''
-    
-def main():
-    num_bands = get_num_bands()
-    info_list, info = load_octo_info()
-    zipped_vectors = get_lattice_vectors(info_list)
-    num_kpoints = get_num_kpoints(info_list)
-    num_ions = get_num_ions(info_list)
-    kpoints = get_kpoints(info_list, num_kpoints)
-    eigen_values = get_eigen_values(info)
-    print(eigen_values)
-    gen_outcar(zipped_vectors)
-
     f = open('PROCAR', 'w')
     f.write('PROCAR new format' + '\n')
     f.write('# of k-points: {}          # of bands:  {}         # of ions:   {}\n\n'.format(num_kpoints, num_bands, num_ions))
 
+    #iterate_kpoints(eigen_values)
 
-    iterate_kpoints(eigen_values)
+    for kpoint in kpoints:
+        f.write(' k-point    1 :    {:.8f} {:.8f} {:.8f}     weight = {:.8f}\n\n'.format(kpoint[0], kpoint[1], kpoint[2], kpoint[3]))
 
-    f.write(' k-point    1 :    {:.8f} {:.8f} {:.8f}     weight = {:.8f}\n\n'.format(0.00000000, 0.00000000, 0.00000000, 0.00462963))
     f.write(' band   {} # energy  {:.8f} # occ.  {:.8f}\n\n'.format(1, -10.30320759, 1.00000000))
     f.write('ion      s      p      d    tot\n')
     f.write('  {}  {:.3f}  {:.3f}  {:.3f}  {:.3f}\n'.format(1, 0.065, 0.000, 0.000, 0.065))
@@ -199,10 +191,24 @@ def main():
     f.write('tot  {:.3f}  {:.3f}  {:.3f}  {:.3f}\n'.format(0.620, 0.000, 0.000, 0.620))
     f.close()
 
+    # wf-kpoint#-band#.cube
+    # wf-k001-st0002.cube
+    # orbitals = [[s, p, d], [s, py, pz, px, dxy, dyz, dz2, dxz, dx2]]
 
-    # k - point 1 - 465
-      # loop through 1 - 48 bands
-        # ions 1, 2 (four different times?)
+def main():
+    num_bands = get_num_bands()
+    info_list, info = load_octo_info()
+    zipped_vectors = get_lattice_vectors(info_list)
+    num_kpoints = get_num_kpoints(info_list)
+    num_ions = get_num_ions(info_list)
+    kpoints = get_kpoints(info_list, num_kpoints)
+    eigen_table = get_eigen_table(info_list)
+    eigen_values = get_eigen_values(10, eigen_table)
+    print(eigen_values)
+    gen_outcar(zipped_vectors)
+    gen_procar(num_kpoints, num_bands, num_ions, kpoints, eigen_values)
+
+
 '''
 ion      s      p      d    tot
   1  0.065  0.000  0.000  0.065
