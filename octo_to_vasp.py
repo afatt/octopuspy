@@ -19,6 +19,7 @@ import numpy as np
 def get_eigen_table(info):
     '''
     '''
+
     start = ' #st  Spin   Eigenvalue      Occupation'
     end = 'Energy [eV]:'
     #end = '^\s*$'
@@ -46,8 +47,8 @@ def group_eigen_values(num_bands, energies, occupancies):
     '''
     '''
 
-    grouped_energies = [energies[i:i + int(num_bands)] for i in range(0, len(energies), int(num_bands))]
-    grouped_occupancies = [occupancies[i:i + int(num_bands)] for i in range(0, len(occupancies), int(num_bands))]
+    grouped_energies = [energies[i:i + num_bands] for i in range(0, len(energies), num_bands)]
+    grouped_occupancies = [occupancies[i:i + num_bands] for i in range(0, len(occupancies), num_bands)]
 
     # [([energy_list1], [occ_list1]), ([energy_list2], [occ_list2])]
     #eigen_groups = zip(grouped_energies, grouped_occupancies)
@@ -76,25 +77,38 @@ def get_lattice_vectors(info):
 
     return(zipped_vectors)
 
-def get_num_bands():
+def get_num_bands(info):
     '''
-    Opens bandstructure.dat and reads the first line of the file and gets the
-    number of bands
+    Gets the number of bands by looking at the eigen value table in info
 
     Returns:
-      num_bands (str): number of energy bands in the bandstructure.dat
+      num_bands (int): number of energy bands in the bandstructure.dat
     '''
 
-    # read the first line that containes the nmber of bands
-    f = open('./PbS/bands-static/bandstructure', 'r')
-    info_line = f.readline()
-    f.close()
+    eigen_table = get_eigen_table(info)
+    start_idx = index_of_substring(eigen_table, '#k =   1')
+    end_idx = index_of_substring(eigen_table, '#k =   2')
+    num_bands = (end_idx - start_idx) - 1
 
-    # create a list out of items in the first line
-    # find the index of bands: and the next index is the number of bands
-    info_list = info_line.split()
-    num_bands = info_list[info_list.index('bands:') + 1]
     return(num_bands)
+
+def index_of_substring(input_list, substring):
+    '''
+    Returns the first occurance of a substring in a list
+
+    Params:
+      input_list (list): list of string items
+      substring (str): string to find the index of
+    Returns:
+      index (int): the index of the item containing the first occurance of
+                   substring (str)
+      -1 (int): there was no index found
+    '''
+
+    for index, item in enumerate(input_list):
+        if substring in item:
+            return(index)
+    return(-1)
 
 def get_num_kpoints(info):
     '''
@@ -153,9 +167,9 @@ def get_kpoints(info, num_kpoints):
 
 def get_num_spinchannels(info):
     '''
+    Calculated based on ion projection table
     '''
     return(num_spinchannels)
-
 
 def load_band_data():
     '''
@@ -212,8 +226,8 @@ def gen_procar(num_kpoints, num_bands, num_ions, kpoints, energies, occupancies)
 
 
 def main():
-    num_bands = get_num_bands()
     info_list, info = load_octo_info()
+    num_bands = get_num_bands(info_list)
     zipped_vectors = get_lattice_vectors(info_list)
     num_kpoints = get_num_kpoints(info_list)
     num_ions = get_num_ions(info_list)
