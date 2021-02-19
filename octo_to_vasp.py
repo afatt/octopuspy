@@ -220,9 +220,8 @@ def gen_procar(num_kpoints, num_bands, num_ions, kpoints, energies, occupancies)
         f.write('     weight = {:.8f}\n\n'.format(float(weight)))
 
         for i, (energy, occupancy) in enumerate(zip(e_group[0], o_group[1])):
-            #f.write('band   {} # energy   {:.8f} # occ.  {:.8f}\n\n'.format(i + 1, float(energy), float(occupancy)))
             f.write('band' + '{}'.rjust(4).format(i + 1))
-            f.write(' # energy   {:.8f} # occ.  {:.8f}\n\n'.format(i + 1, float(energy), float(occupancy)))
+            f.write(' # energy   {:.8f} # occ.  {:.8f}\n\n'.format(float(energy), float(occupancy)))
             f.write('ion      s      p      d    tot\n')
             f.write('  {}  {:.3f}  {:.3f}  {:.3f}  {:.3f}\n'.format(1, 0.065, 0.000, 0.000, 0.065))
             f.write('  {}  {:.3f}  {:.3f}  {:.3f}  {:.3f}\n'.format(2, 0.556, 0.000, 0.000, 0.556))
