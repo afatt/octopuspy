@@ -200,19 +200,29 @@ def gen_outcar(zipped_vectors):
 
 def gen_procar(num_kpoints, num_bands, num_ions, kpoints, energies, occupancies):
     '''
+    TODO: Test: All kpoints must match this regular expression
+    k-point\s+(\d+)\s*:\s+([- ][01].\d{8})([- ][01].\d{8})([- ][01].\d{8})\s+weight = ([01].\d+)
     '''
 
     f = open('PROCAR', 'w')
     f.write('PROCAR new format' + '\n')
     f.write('# of k-points: {}          # of bands:  {}         # of ions:   {}\n\n'.format(num_kpoints, num_bands, num_ions))
 
-    e_group, o_group = group_eigen_values(10, energies, occupancies)
+    e_group, o_group = group_eigen_values(num_bands, energies, occupancies)
 
     for idx, (kx, ky, kz, weight) in enumerate(kpoints): # 16 points
-        f.write(' k-point    {} :    {:.8f} {:.8f} {:.8f}     weight = {:.8f}\n\n'.format(idx + 1, float(kx), float(ky), float(kz), float(weight)))
+
+        f.write(' k-point' + str(idx + 1).rjust(5))
+        f.write(' :    ')
+        f.write('{:11.8f}'.format(float(kx)))
+        f.write('{:11.8f}'.format(float(ky)))
+        f.write('{:11.8f}'.format(float(kz)))
+        f.write('     weight = {:.8f}\n\n'.format(float(weight)))
 
         for i, (energy, occupancy) in enumerate(zip(e_group[0], o_group[1])):
-            f.write('band   {} # energy  {:.8f} # occ.  {:.8f}\n\n'.format(i + 1, float(energy), float(occupancy)))
+            #f.write('band   {} # energy   {:.8f} # occ.  {:.8f}\n\n'.format(i + 1, float(energy), float(occupancy)))
+            f.write('band' + '{}'.rjust(4).format(i + 1))
+            f.write(' # energy   {:.8f} # occ.  {:.8f}\n\n'.format(i + 1, float(energy), float(occupancy)))
             f.write('ion      s      p      d    tot\n')
             f.write('  {}  {:.3f}  {:.3f}  {:.3f}  {:.3f}\n'.format(1, 0.065, 0.000, 0.000, 0.065))
             f.write('  {}  {:.3f}  {:.3f}  {:.3f}  {:.3f}\n'.format(2, 0.556, 0.000, 0.000, 0.556))
