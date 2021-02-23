@@ -219,14 +219,16 @@ def gen_procar(num_kpoints, num_bands, num_ions, kpoints, energies, occupancies)
         f.write('{:11.8f}'.format(float(kz)))
         f.write('     weight = {:.8f}\n\n'.format(float(weight)))
 
-        for i, (energy, occupancy) in enumerate(zip(e_group[0], o_group[1])):
+        # num of kpoints should equal number of energy groups and occupancy
+        # groups so idx can be used
+        for i, (energy, occupancy) in enumerate(zip(e_group[idx], o_group[idx])):
             f.write('band' + '{}'.rjust(4).format(i + 1))
-            f.write(' # energy   {:.8f} # occ.  {:.8f}\n\n'.format(float(energy), float(occupancy)))
+            f.write(' # energy' + '{:14.8f}'.format(float(energy)))
+            f.write(' # occ.' + '{:12.8f}\n\n'.format(float(occupancy)))
             f.write('ion      s      p      d    tot\n')
             f.write('  {}  {:.3f}  {:.3f}  {:.3f}  {:.3f}\n'.format(1, 0.065, 0.000, 0.000, 0.065))
             f.write('  {}  {:.3f}  {:.3f}  {:.3f}  {:.3f}\n'.format(2, 0.556, 0.000, 0.000, 0.556))
             f.write('tot  {:.3f}  {:.3f}  {:.3f}  {:.3f}\n\n'.format(0.620, 0.000, 0.000, 0.620))
-
     f.close()
 
     # wf-kpoint#-band#.cube
