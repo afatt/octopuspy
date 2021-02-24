@@ -4,6 +4,7 @@
 
 import re
 import numpy as np
+import numpy.ma as ma
 
 # All that is used from vasppy outcar is
 #  reciprocal_lattice = outcar.reciprocal_lattice_from_outcar(outcar_path)
@@ -15,6 +16,8 @@ import numpy as np
 # number_of_kpoints = vasp_data.number_of_k_points
 # vasp_data_energies = np.array( [ band.energy for band in np.ravel( vasp_data.bands ) ] )
 # vasp_data_occupancies = np.array( [ band.occupancy for band in np.ravel( vasp_data.bands ) ] )
+
+# the effective mass calculations only seem to use cartesian kpoints, and eigen values
 
 def get_eigen_table(info):
     '''
@@ -30,6 +33,7 @@ def get_eigen_table(info):
 
 def get_eigen_values(eigen_table):
     '''
+
     '''
 
     # remove the kpoint line info and create a list of lists consisting of
@@ -38,22 +42,40 @@ def get_eigen_values(eigen_table):
     eigen_list_split = [line.split() for line in k_removed_list]
 
     # save the engergies and occupancies to a new list if the line is not empty
-    energies = [line[2] for line in eigen_list_split if line]
-    occupancies = [line[3] for line in eigen_list_split if line]
+    energies = [float(line[2]) for line in eigen_list_split if line]
+    occupancies = [float(line[3]) for line in eigen_list_split if line]
 
     return(energies, occupancies)
 
 def group_eigen_values(num_bands, energies, occupancies):
     '''
+        TODO: transfer to ndarray with shape (num kpoints, num bands)
     '''
 
+    # array of form [[kpoint1_energies], ... [kpoint16_energies]]
+    # array of form [[kpoint1_occupancies], ... [kpoint16_occupancies]]
     grouped_energies = [energies[i:i + num_bands] for i in range(0, len(energies), num_bands)]
     grouped_occupancies = [occupancies[i:i + num_bands] for i in range(0, len(occupancies), num_bands)]
 
-    # [([energy_list1], [occ_list1]), ([energy_list2], [occ_list2])]
-    #eigen_groups = zip(grouped_energies, grouped_occupancies)
-
     return(grouped_energies, grouped_occupancies)
+
+def eigen_values_np(grouped_energies, grouped_occupancies):
+    '''TODO: lump the three functions to work together and use np arrays in main code
+    '''
+
+    # numpy array with shape (num bands, num kpoints)
+    energies = np.array(grouped_energies).T
+    occupancies = np.array(grouped_occupancies).T
+
+    # mask in energies where occupancies is > 0.5
+    energy_unoccupied = ma.masked_where(occupancies > 0.5, energies)
+    print(energy_unoccupied)
+    print(np.amax(energy_unoccupied))
+
+    energy_occupied = ma.masked_where(occupancies < 0.5, energies)
+    return np.amax(energy_occupied)
+
+    return(energies, occupancies)
 
 def get_lattice_vectors(info):
     '''TODO: Original lattice vector had 8 decimal places
@@ -210,6 +232,8 @@ def gen_procar(num_kpoints, num_bands, num_ions, kpoints, energies, occupancies)
 
     e_group, o_group = group_eigen_values(num_bands, energies, occupancies)
 
+    x, y = eigen_values_np(e_group, o_group)
+
     for idx, (kx, ky, kz, weight) in enumerate(kpoints): # 16 points
 
         f.write(' k-point' + str(idx + 1).rjust(5))
@@ -223,8 +247,8 @@ def gen_procar(num_kpoints, num_bands, num_ions, kpoints, energies, occupancies)
         # groups so idx can be used
         for i, (energy, occupancy) in enumerate(zip(e_group[idx], o_group[idx])):
             f.write('band' + '{}'.rjust(4).format(i + 1))
-            f.write(' # energy' + '{:14.8f}'.format(float(energy)))
-            f.write(' # occ.' + '{:12.8f}\n\n'.format(float(occupancy)))
+            f.write(' # energy' + '{:14.8f}'.format(energy))
+            f.write(' # occ.' + '{:12.8f}\n\n'.format(occupancy))
             f.write('ion      s      p      d    tot\n')
             f.write('  {}  {:.3f}  {:.3f}  {:.3f}  {:.3f}\n'.format(1, 0.065, 0.000, 0.000, 0.065))
             f.write('  {}  {:.3f}  {:.3f}  {:.3f}  {:.3f}\n'.format(2, 0.556, 0.000, 0.000, 0.556))
