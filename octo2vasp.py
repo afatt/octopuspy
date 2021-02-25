@@ -19,6 +19,14 @@ import numpy.ma as ma
 
 # the effective mass calculations only seem to use cartesian kpoints, and eigen values
 
+# Files and what information they contain
+# ---------------------------------------
+# info -> reciprocal lattice vector, number of ions, reduced kpoints,
+#         reduced kpoint weight
+# results -> kpoint wieght
+# eigenvalues -> energies, occupancies, number of bands
+# bandstructure -> number of kpoints, num bands, CBM, VBM and  condcution, valence bands minimum and maximum
+
 def get_eigen_table(info):
     '''
     '''
@@ -73,7 +81,7 @@ def eigen_values_np(grouped_energies, grouped_occupancies):
     print(np.amax(energy_unoccupied))
 
     energy_occupied = ma.masked_where(occupancies < 0.5, energies)
-    return np.amax(energy_occupied)
+    print(np.amax(energy_occupied))
 
     return(energies, occupancies)
 
@@ -99,18 +107,19 @@ def get_lattice_vectors(info):
 
     return(zipped_vectors)
 
-def get_num_bands(info):
+def get_num_bands(bandstructure):
     '''
-    Gets the number of bands by looking at the eigen value table in info
+    Gets the number of bands by looking at the shape of the bandstructure array
 
+    Params:
+      bandstructure (numpy array): with shape (kpoints, band_info)
     Returns:
       num_bands (int): number of energy bands in the bandstructure.dat
     '''
 
-    eigen_table = get_eigen_table(info)
-    start_idx = index_of_substring(eigen_table, '#k =   1')
-    end_idx = index_of_substring(eigen_table, '#k =   2')
-    num_bands = (end_idx - start_idx) - 1
+    # numpy array in shape (kpoints, band_info) with 4 extra columns
+    # # coord. kx ky kz
+    num_bands = bandstructure.shape[1] - 4
 
     return(num_bands)
 
@@ -132,19 +141,18 @@ def index_of_substring(input_list, substring):
             return(index)
     return(-1)
 
-def get_num_kpoints(info):
+def get_num_kpoints(bandstructure):
     '''
+    Extracts the number of kpoints from the bandstructure numpy array
+
+    Params:
+      bandstructure (numpy array): with shape (kpoints, band_info)
+    Returns:
+      num_kpoints (int): number of kpoints
     '''
 
-    # TODO: Move to a separate function
-    match = 'Number of symmetry-reduced k-points'
-    matched = [x for x in info if match in x]
-
-    # parse into list with space delimiter and get the last item
-    kpoints_line = matched[0].split()
-    num_kpoints = kpoints_line[-1]
-
-    #TODO: Check to make sure its an integer value
+    # numpy array in shape (kpoints, band_info)
+    num_kpoints = bandstructure.shape[0]
 
     return(num_kpoints)
 
@@ -163,27 +171,22 @@ def get_num_ions(info):
     num_ions = str(len(info[start_idx + 1:end_idx]))
     return(num_ions)
 
-def get_kpoints(info, num_kpoints):
-    '''TODO: The data from eigen values has more decimal points
+def get_kpoints(bandstructure):
+    '''
+    Extracts the kpoints from the bandstructure numpy array
+
+    Params:
+      bandstructure (numpy array): with shape (kpoints, band_info)
+    Returns:
+      kpoints (zipped arrays): (kx float array, ky float array, kz float array)
     '''
 
-    # get the kpoints data from the info data
-    # there are three text header lines that need to be skipped
-    kpoint_idx = info.index('List of k-points:') + 3
-    kpoint_info = info[kpoint_idx:kpoint_idx + int(num_kpoints)]
-
-    # split each item in list with space delimiter and remove the kpoint number
-    # of each item
-    kpoints = [x.split()[1:] for x in kpoint_info]
-
-    # create individual lists of each kpoint item
-    kx  = [kp[0] for kp in kpoints]
-    ky = [kp[1] for kp in kpoints]
-    kz = [kp[2] for kp in kpoints]
-    weight = [kp[3] for kp in kpoints]
+    kx = bandstructure[:,1]
+    ky = bandstructure[:,2]
+    kz = bandstructure[:,3]
 
     # zip for easy iteration
-    kpoints = zip(kx, ky, kz, weight)
+    kpoints = zip(kx, ky, kz)
 
     return(kpoints)
 
@@ -193,11 +196,17 @@ def get_num_spinchannels(info):
     '''
     return(num_spinchannels)
 
-def load_band_data():
+def load_bandstructure():
     '''
+    Loads the bandstructure file into a numpy array (without header line)
+
+    Returns:
+      bandstructure (numpy array): with shape (kpoints, band_info)
     '''
-    data = np.array(np.loadtxt('./PbS/bands-static/bandstructure'))
-    return(data)
+
+    bandstructure = np.array(np.loadtxt('./PbS/bands-static/bandstructure'))
+
+    return(bandstructure)
 
 def load_octo_info():
     '''
@@ -261,16 +270,20 @@ def gen_procar(num_kpoints, num_bands, num_ions, kpoints, energies, occupancies)
 
 
 def main():
-    info_list, info = load_octo_info()
-    num_bands = get_num_bands(info_list)
-    zipped_vectors = get_lattice_vectors(info_list)
-    num_kpoints = get_num_kpoints(info_list)
-    num_ions = get_num_ions(info_list)
-    kpoints = get_kpoints(info_list, num_kpoints)
-    eigen_table = get_eigen_table(info_list)
-    energies, occupancies = get_eigen_values(eigen_table)
-    gen_outcar(zipped_vectors)
-    gen_procar(num_kpoints, num_bands, num_ions, kpoints, energies, occupancies)
+    bandstructure = load_bandstructure()
+    num_bands = get_num_bands(bandstructure)
+    num_kpoints = get_num_kpoints(bandstructure)
+    kpoints = get_kpoints(bandstructure)
+
+    # info_list, info = load_octo_info()
+
+    # zipped_vectors = get_lattice_vectors(info_list)
+    #
+    # num_ions = get_num_ions(info_list)
+    # eigen_table = get_eigen_table(info_list)
+    # energies, occupancies = get_eigen_values(eigen_table)
+    # gen_outcar(zipped_vectors)
+    # gen_procar(num_kpoints, num_bands, num_ions, kpoints, energies, occupancies)
 
 
 if __name__ == '__main__':
