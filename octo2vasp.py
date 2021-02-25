@@ -27,10 +27,12 @@ import numpy.ma as ma
 # eigenvalues -> energies, occupancies, number of bands
 # bandstructure -> number of kpoints, num bands, CBM, VBM and  condcution, valence bands minimum and maximum
 
-INFO = './PbS/bands-static/info'
-RESULTS = './PbS/bands-static/results.out'
-BANDSTRUCTURE = './PbS/bands-static/bandstructure'
-EIGENVALUES = './PbS/bands-static/eigenvalues'
+# FILEPATH = './PbS/bands-static/'
+FILEPATH = './Si/'
+INFO = FILEPATH + 'info'
+RESULTS = FILEPATH + 'results.out'
+BANDSTRUCTURE = FILEPATH + 'bandstructure'
+EIGENVALUES = FILEPATH + 'eigenvalues'
 
 def get_eigen_table(num_bands, num_kpoints):
     '''
@@ -78,36 +80,6 @@ def get_eigenvalues(eigen_table, num_bands):
     occupancies = np.array(grouped_occupancies)
 
     return(energies, occupancies)
-
-# def group_eigen_values(num_bands, energies, occupancies):
-#     '''
-#         TODO: transfer to ndarray with shape (num kpoints, num bands)
-#     '''
-#
-#     # array of form [[kpoint1_energies], ... [kpoint16_energies]]
-#     # array of form [[kpoint1_occupancies], ... [kpoint16_occupancies]]
-#     grouped_energies = [energies[i:i + num_bands] for i in range(0, len(energies), num_bands)]
-#     grouped_occupancies = [occupancies[i:i + num_bands] for i in range(0, len(occupancies), num_bands)]
-#
-#     return(grouped_energies, grouped_occupancies)
-#
-# def eigen_values_np(grouped_energies, grouped_occupancies):
-#     '''TODO: lump the three functions to work together and use np arrays in main code
-#     '''
-#
-#     # numpy array with shape (num bands, num kpoints)
-#     energies = np.array(grouped_energies).T
-#     occupancies = np.array(grouped_occupancies).T
-#
-#     # mask in energies where occupancies is > 0.5
-#     energy_unoccupied = ma.masked_where(occupancies > 0.5, energies)
-#     print(energy_unoccupied)
-#     print(np.amax(energy_unoccupied))
-#
-#     energy_occupied = ma.masked_where(occupancies < 0.5, energies)
-#     print(np.amax(energy_occupied))
-#
-#     return(energies, occupancies)
 
 def get_lattice_vectors(info):
     '''TODO: Original lattice vector had 8 decimal places
@@ -177,7 +149,6 @@ def get_num_kpoints(bandstructure):
 
     # numpy array in shape (kpoints, band_info)
     num_kpoints = bandstructure.shape[0]
-    print(num_kpoints)
 
     return(num_kpoints)
 
@@ -196,7 +167,7 @@ def get_num_ions(info):
     # equivalent to number of ions. convert to string so it can be saved to file
     num_ions = str(len(info[start_idx + 1:end_idx]))
 
-    return(num_ions)
+    return(int(num_ions))
 
 def get_kpoints(bandstructure):
     '''
@@ -239,9 +210,13 @@ def gen_procar(num_kpoints, num_bands, num_ions, kpoints, weights, energies, occ
 
     f = open('PROCAR', 'w')
     f.write('PROCAR new format' + '\n')
-    f.write('# of k-points: {}          # of bands:  {}         # of ions:   {}\n\n'.format(num_kpoints, num_bands, num_ions))
+    f.write('# of k-points: {}          '.format(num_kpoints))
+    f.write('# of bands:  {}         '.format(num_bands))
+    f.write('# of ions:   {}\n\n'.format(num_ions))
 
     kx, ky, kz = zip(*kpoints)
+    print(len(kx))
+    print(weights.shape)
     kpoints_weights = zip(kx, ky, kz, weights)
 
     for idx, (kx, ky, kz, weight) in enumerate(kpoints_weights):
@@ -260,9 +235,17 @@ def gen_procar(num_kpoints, num_bands, num_ions, kpoints, weights, energies, occ
             f.write(' # energy' + '{:14.8f}'.format(energy))
             f.write(' # occ.' + '{:12.8f}\n\n'.format(occupancy))
             f.write('ion      s      p      d    tot\n')
-            f.write('  {}  {:.3f}  {:.3f}  {:.3f}  {:.3f}\n'.format(1, 0.065, 0.000, 0.000, 0.065))
-            f.write('  {}  {:.3f}  {:.3f}  {:.3f}  {:.3f}\n'.format(2, 0.556, 0.000, 0.000, 0.556))
-            f.write('tot  {:.3f}  {:.3f}  {:.3f}  {:.3f}\n\n'.format(0.620, 0.000, 0.000, 0.620))
+            for ion in range(0, num_ions):
+                f.write('  {}'.format(ion + 1))
+                f.write('  {:.3f}'.format(0.000))
+                f.write('  {:.3f}'.format(0.000))
+                f.write('  {:.3f}'.format(0.000))
+                f.write('  {:.3f}\n'.format(0.000))
+            f.write('tot')
+            f.write('  {:.3f}'.format(0.000))
+            f.write('  {:.3f}'.format(0.000))
+            f.write('  {:.3f}'.format(0.000))
+            f.write('  {:.3f}\n\n'.format(0.000))
     f.close()
 
     # wf-kpoint#-band#.cube
@@ -288,7 +271,6 @@ def get_weights(results, num_kpoints):
     # get the second column of the table and load into numpy array
     weights_list = [row.split() for row in weights_table]
     weights_full = np.array(weights_list)
-    print(weights_full)
     weights = weights_full[:,2]
     weights = weights.astype('float64')
 
