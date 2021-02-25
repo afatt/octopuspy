@@ -27,22 +27,34 @@ import numpy.ma as ma
 # eigenvalues -> energies, occupancies, number of bands
 # bandstructure -> number of kpoints, num bands, CBM, VBM and  condcution, valence bands minimum and maximum
 
+INFO = './PbS/bands-static/info'
 RESULTS = './PbS/bands-static/results.out'
 BANDSTRUCTURE = './PbS/bands-static/bandstructure'
+EIGENVALUES = './PbS/bands-static/eigenvalues'
 
-def get_eigen_table(info):
+def get_eigen_table(num_bands, num_kpoints):
     '''
+    Loads the eigenvalues file and returns the eigenvalue table
+
+    Params:
+      num_bands (int): number of energy bands
+      num_kpoints (int): number of kpoints
+    Returns:
+      eigen_table (list string): list containing each row of the eigenvalue table
     '''
 
-    start = ' #st  Spin   Eigenvalue      Occupation'
-    end = 'Energy [eV]:'
-    #end = '^\s*$'
-    start_idx = info.index(start)
-    end_idx = info.index(end)
-    eigen_table = info[start_idx + 1:end_idx - 1]
+    f = open(EIGENVALUES, 'r')
+    text = f.read()
+    eigen_file = text.splitlines()
+
+    start = ' #st  Spin   Eigenvalue      Occupation     Error'
+    start_idx = eigen_file.index(start)
+    end_idx = start_idx + 1 + num_kpoints + (num_bands * (num_kpoints))
+    eigen_table = eigen_file[start_idx + 1:end_idx]
+
     return(eigen_table)
 
-def get_eigen_values(eigen_table):
+def get_eigenvalues(eigen_table, num_bands):
     '''
 
     '''
@@ -53,40 +65,49 @@ def get_eigen_values(eigen_table):
     eigen_list_split = [line.split() for line in k_removed_list]
 
     # save the engergies and occupancies to a new list if the line is not empty
-    energies = [float(line[2]) for line in eigen_list_split if line]
-    occupancies = [float(line[3]) for line in eigen_list_split if line]
-
-    return(energies, occupancies)
-
-def group_eigen_values(num_bands, energies, occupancies):
-    '''
-        TODO: transfer to ndarray with shape (num kpoints, num bands)
-    '''
+    energy_list = [float(line[2]) for line in eigen_list_split if line]
+    occupancy_list = [float(line[3]) for line in eigen_list_split if line]
 
     # array of form [[kpoint1_energies], ... [kpoint16_energies]]
     # array of form [[kpoint1_occupancies], ... [kpoint16_occupancies]]
-    grouped_energies = [energies[i:i + num_bands] for i in range(0, len(energies), num_bands)]
-    grouped_occupancies = [occupancies[i:i + num_bands] for i in range(0, len(occupancies), num_bands)]
+    grouped_energies = [energy_list[i:i + num_bands] for i in range(0, len(energy_list), num_bands)]
+    grouped_occupancies = [occupancy_list[i:i + num_bands] for i in range(0, len(occupancy_list), num_bands)]
 
-    return(grouped_energies, grouped_occupancies)
-
-def eigen_values_np(grouped_energies, grouped_occupancies):
-    '''TODO: lump the three functions to work together and use np arrays in main code
-    '''
-
-    # numpy array with shape (num bands, num kpoints)
-    energies = np.array(grouped_energies).T
-    occupancies = np.array(grouped_occupancies).T
-
-    # mask in energies where occupancies is > 0.5
-    energy_unoccupied = ma.masked_where(occupancies > 0.5, energies)
-    print(energy_unoccupied)
-    print(np.amax(energy_unoccupied))
-
-    energy_occupied = ma.masked_where(occupancies < 0.5, energies)
-    print(np.amax(energy_occupied))
+    # numpy array with shape (num kpoints, num bands)
+    energies = np.array(grouped_energies)
+    occupancies = np.array(grouped_occupancies)
 
     return(energies, occupancies)
+
+# def group_eigen_values(num_bands, energies, occupancies):
+#     '''
+#         TODO: transfer to ndarray with shape (num kpoints, num bands)
+#     '''
+#
+#     # array of form [[kpoint1_energies], ... [kpoint16_energies]]
+#     # array of form [[kpoint1_occupancies], ... [kpoint16_occupancies]]
+#     grouped_energies = [energies[i:i + num_bands] for i in range(0, len(energies), num_bands)]
+#     grouped_occupancies = [occupancies[i:i + num_bands] for i in range(0, len(occupancies), num_bands)]
+#
+#     return(grouped_energies, grouped_occupancies)
+#
+# def eigen_values_np(grouped_energies, grouped_occupancies):
+#     '''TODO: lump the three functions to work together and use np arrays in main code
+#     '''
+#
+#     # numpy array with shape (num bands, num kpoints)
+#     energies = np.array(grouped_energies).T
+#     occupancies = np.array(grouped_occupancies).T
+#
+#     # mask in energies where occupancies is > 0.5
+#     energy_unoccupied = ma.masked_where(occupancies > 0.5, energies)
+#     print(energy_unoccupied)
+#     print(np.amax(energy_unoccupied))
+#
+#     energy_occupied = ma.masked_where(occupancies < 0.5, energies)
+#     print(np.amax(energy_occupied))
+#
+#     return(energies, occupancies)
 
 def get_lattice_vectors(info):
     '''TODO: Original lattice vector had 8 decimal places
@@ -156,12 +177,14 @@ def get_num_kpoints(bandstructure):
 
     # numpy array in shape (kpoints, band_info)
     num_kpoints = bandstructure.shape[0]
+    print(num_kpoints)
 
     return(num_kpoints)
 
 def get_num_ions(info):
     '''
     '''
+
     start = ' Ion                        x              y              z'
 
     # TODO: this might not be the first time this occurs
@@ -172,6 +195,7 @@ def get_num_ions(info):
     # find the length of the list between the start and end text which is
     # equivalent to number of ions. convert to string so it can be saved to file
     num_ions = str(len(info[start_idx + 1:end_idx]))
+
     return(num_ions)
 
 def get_kpoints(bandstructure):
@@ -207,7 +231,7 @@ def gen_outcar(zipped_vectors):
         f.write(vec + ' ' + recp_vect + '\n')
     f.close()
 
-def gen_procar(num_kpoints, num_bands, num_ions, kpoints, energies, occupancies):
+def gen_procar(num_kpoints, num_bands, num_ions, kpoints, weights, energies, occupancies):
     '''
     TODO: Test: All kpoints must match this regular expression
     k-point\s+(\d+)\s*:\s+([- ][01].\d{8})([- ][01].\d{8})([- ][01].\d{8})\s+weight = ([01].\d+)
@@ -217,22 +241,21 @@ def gen_procar(num_kpoints, num_bands, num_ions, kpoints, energies, occupancies)
     f.write('PROCAR new format' + '\n')
     f.write('# of k-points: {}          # of bands:  {}         # of ions:   {}\n\n'.format(num_kpoints, num_bands, num_ions))
 
-    e_group, o_group = group_eigen_values(num_bands, energies, occupancies)
+    kx, ky, kz = zip(*kpoints)
+    kpoints_weights = zip(kx, ky, kz, weights)
 
-    x, y = eigen_values_np(e_group, o_group)
-
-    for idx, (kx, ky, kz, weight) in enumerate(kpoints): # 16 points
+    for idx, (kx, ky, kz, weight) in enumerate(kpoints_weights):
 
         f.write(' k-point' + str(idx + 1).rjust(5))
         f.write(' :    ')
-        f.write('{:11.8f}'.format(float(kx)))
-        f.write('{:11.8f}'.format(float(ky)))
-        f.write('{:11.8f}'.format(float(kz)))
-        f.write('     weight = {:.8f}\n\n'.format(float(weight)))
+        f.write('{:11.8f}'.format(kx))
+        f.write('{:11.8f}'.format(ky))
+        f.write('{:11.8f}'.format(kz))
+        f.write('     weight = {:.8f}\n\n'.format(weight))
 
         # num of kpoints should equal number of energy groups and occupancy
         # groups so idx can be used
-        for i, (energy, occupancy) in enumerate(zip(e_group[idx], o_group[idx])):
+        for i, (energy, occupancy) in enumerate(zip(energies[idx,:], occupancies[idx,:])):
             f.write('band' + '{}'.rjust(4).format(i + 1))
             f.write(' # energy' + '{:14.8f}'.format(energy))
             f.write(' # occ.' + '{:12.8f}\n\n'.format(occupancy))
@@ -254,18 +277,20 @@ def get_weights(results, num_kpoints):
       results (list string):  list of lines from results.out
       num_kpoints (int): number of kpoints
     Returns:
-      weights (numpy array): shape (weights, )
+      weights (numpy array): shape (weights, ) dtype: float64
     '''
 
     # find the index of the match and get numkpoints of lines results
     match = ' index |    weight    |             coordinates              |'
     start = results.index(match)
-    weights_table = results[start: start + num_kpoints][1:]
+    weights_table = results[start: start + num_kpoints + 1][1:]
 
     # get the second column of the table and load into numpy array
     weights_list = [row.split() for row in weights_table]
     weights_full = np.array(weights_list)
+    print(weights_full)
     weights = weights_full[:,2]
+    weights = weights.astype('float64')
 
     return(weights)
 
@@ -283,17 +308,17 @@ def load_bandstructure():
 
 def load_octo_info():
     '''
+    Loads the data from info file and puts into list of strings
+    Returns:
+      info (list string): list containing every line from info file
     '''
-    f = open('./PbS/bands-static/info', 'r')
+    f = open(INFO, 'r')
 
     # read as single string separated by newline characters
-    info = f.read()
-
-    # creates a list of lines rather than a long string with newline characters
-    info_list = info.splitlines()
+    info = f.read().splitlines()
     f.close()
 
-    return(info_list, info)
+    return(info)
 
 def load_results():
     '''
@@ -320,16 +345,14 @@ def main():
 
     results = load_results()
     weights = get_weights(results, num_kpoints)
+    eigen_table = get_eigen_table(num_bands, num_kpoints)
+    energies, occupancies = get_eigenvalues(eigen_table, num_bands)
 
-    # info_list, info = load_octo_info()
-
-    # zipped_vectors = get_lattice_vectors(info_list)
-    #
-    # num_ions = get_num_ions(info_list)
-    # eigen_table = get_eigen_table(info_list)
-    # energies, occupancies = get_eigen_values(eigen_table)
-    # gen_outcar(zipped_vectors)
-    # gen_procar(num_kpoints, num_bands, num_ions, kpoints, energies, occupancies)
+    info = load_octo_info()
+    zipped_vectors = get_lattice_vectors(info)
+    num_ions = get_num_ions(info)
+    gen_outcar(zipped_vectors)
+    gen_procar(num_kpoints, num_bands, num_ions, kpoints, weights, energies, occupancies)
 
 
 if __name__ == '__main__':
