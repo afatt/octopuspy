@@ -27,6 +27,9 @@ import numpy.ma as ma
 # eigenvalues -> energies, occupancies, number of bands
 # bandstructure -> number of kpoints, num bands, CBM, VBM and  condcution, valence bands minimum and maximum
 
+RESULTS = './PbS/bands-static/results.out'
+BANDSTRUCTURE = './PbS/bands-static/bandstructure'
+
 def get_eigen_table(info):
     '''
     '''
@@ -196,31 +199,6 @@ def get_num_spinchannels(info):
     '''
     return(num_spinchannels)
 
-def load_bandstructure():
-    '''
-    Loads the bandstructure file into a numpy array (without header line)
-
-    Returns:
-      bandstructure (numpy array): with shape (kpoints, band_info)
-    '''
-
-    bandstructure = np.array(np.loadtxt('./PbS/bands-static/bandstructure'))
-
-    return(bandstructure)
-
-def load_octo_info():
-    '''
-    '''
-    f = open('./PbS/bands-static/info', 'r')
-
-    # read as single string separated by newline characters
-    info = f.read()
-
-    # creates a list of lines rather than a long string with newline characters
-    info_list = info.splitlines()
-    f.close()
-    return(info_list, info)
-
 def gen_outcar(zipped_vectors):
     f = open('OUTCAR', 'w')
     direct_header = '     direct lattice vectors'
@@ -268,12 +246,80 @@ def gen_procar(num_kpoints, num_bands, num_ions, kpoints, energies, occupancies)
     # wf-k001-st0002.cube
     # orbitals = [[s, p, d], [s, py, pz, px, dxy, dyz, dz2, dxz, dx2]]
 
+def get_weights(results, num_kpoints):
+    '''
+    Gets the kpoint weights from the results list
+
+    Params:
+      results (list string):  list of lines from results.out
+      num_kpoints (int): number of kpoints
+    Returns:
+      weights (numpy array): shape (weights, )
+    '''
+
+    # find the index of the match and get numkpoints of lines results
+    match = ' index |    weight    |             coordinates              |'
+    start = results.index(match)
+    weights_table = results[start: start + num_kpoints][1:]
+
+    # get the second column of the table and load into numpy array
+    weights_list = [row.split() for row in weights_table]
+    weights_full = np.array(weights_list)
+    weights = weights_full[:,2]
+
+    return(weights)
+
+def load_bandstructure():
+    '''
+    Loads the bandstructure file into a numpy array (without header line)
+
+    Returns:
+      bandstructure (numpy array): with shape (kpoints, band_info)
+    '''
+
+    bandstructure = np.array(np.loadtxt(BANDSTRUCTURE))
+
+    return(bandstructure)
+
+def load_octo_info():
+    '''
+    '''
+    f = open('./PbS/bands-static/info', 'r')
+
+    # read as single string separated by newline characters
+    info = f.read()
+
+    # creates a list of lines rather than a long string with newline characters
+    info_list = info.splitlines()
+    f.close()
+
+    return(info_list, info)
+
+def load_results():
+    '''
+    Loads the results.out file as a list of lines
+
+    Returns:
+      results (list string): list of lines from results.out
+    '''
+
+    f = open(RESULTS, 'r')
+    text = f.read()
+
+    # creates a list of lines rather than a long string with newline characters
+    results = text.splitlines()
+    f.close()
+
+    return(results)
 
 def main():
     bandstructure = load_bandstructure()
     num_bands = get_num_bands(bandstructure)
     num_kpoints = get_num_kpoints(bandstructure)
     kpoints = get_kpoints(bandstructure)
+
+    results = load_results()
+    weights = get_weights(results, num_kpoints)
 
     # info_list, info = load_octo_info()
 
