@@ -1,38 +1,41 @@
 #!/usr/bin/env python
 
-''' Generates a PROCAR and OUTCAR file using Octopus info file'''
+'''
+Generates a PROCAR and OUTCAR file using Octopus info, results, eigenvalues,
+and bandstructure files
+
+Octopus files and what information they contain
+---------------------------------------
+info -> reciprocal lattice vector, number of ions
+results -> kpoint wieght
+eigenvalues -> energies, occupancies, number of bands
+bandstructure -> number of kpoints, num bands, CBM, VBM and  condcution, valence
+bands minimum and maximum
+'''
 
 import re
 import numpy as np
 import numpy.ma as ma
 
-# All that is used from vasppy outcar is
-#  reciprocal_lattice = outcar.reciprocal_lattice_from_outcar(outcar_path)
-
-# WHAT is used from PROCAR
-# self.spin_channels = vasp_data.spin_channels
-# self.number_of_bands = vasp_data.number_of_bands
-# self.number_of_ions = vasp_data.number_of_ions
-# number_of_kpoints = vasp_data.number_of_k_points
-# vasp_data_energies = np.array( [ band.energy for band in np.ravel( vasp_data.bands ) ] )
-# vasp_data_occupancies = np.array( [ band.occupancy for band in np.ravel( vasp_data.bands ) ] )
-
-# the effective mass calculations only seem to use cartesian kpoints, and eigen values
-
-# Files and what information they contain
-# ---------------------------------------
-# info -> reciprocal lattice vector, number of ions, reduced kpoints,
-#         reduced kpoint weight
-# results -> kpoint wieght
-# eigenvalues -> energies, occupancies, number of bands
-# bandstructure -> number of kpoints, num bands, CBM, VBM and  condcution, valence bands minimum and maximum
-
 # FILEPATH = './PbS/bands-static/'
-FILEPATH = './Si/'
+# FILEPATH = './Si/'
+FILEPATH = './New_Si/bands-static/'
 INFO = FILEPATH + 'info'
 RESULTS = FILEPATH + 'results.out'
 BANDSTRUCTURE = FILEPATH + 'bandstructure'
 EIGENVALUES = FILEPATH + 'eigenvalues'
+
+ENERGY_SCALE = 10.0
+
+def _calc_CBM(bandstructure):
+    '''
+    '''
+    return(CBM)
+
+def _calc_VBM(bandstructure):
+    '''
+    '''
+    return(VBM)
 
 def get_eigen_table(num_bands, num_kpoints):
     '''
@@ -89,7 +92,9 @@ def get_eigenvalues(eigen_table, num_bands):
     occupancies = np.array(grouped_occupancies)
 
     efermi = np.loadtxt(FILEPATH + 'total-dos-efermi.dat')[0,0]
-    energies = energies - eferm
+    energies = energies - efermi
+
+    energies = energies / ENERGY_SCALE
 
     return(energies, occupancies)
 
