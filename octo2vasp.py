@@ -58,7 +58,16 @@ def get_eigen_table(num_bands, num_kpoints):
 
 def get_eigenvalues(eigen_table, num_bands):
     '''
+    Creates two numpy arrays consisting of the energies and occupancies of
+    the eigen table from the eigenvalues file
 
+    Params:
+      eigen_table (list string): list containing every line of the eigenvalue
+                                 eigenvalue table
+      num_bands (int): number of energy bands
+    Returns:
+      energies (numpy array): shape (num kpoints, num bands)
+      occupancies (numpy array): shape (num kpoints, num bands)
     '''
 
     # remove the kpoint line info and create a list of lists consisting of
@@ -77,15 +86,22 @@ def get_eigenvalues(eigen_table, num_bands):
 
     # numpy array with shape (num kpoints, num bands)
     energies = np.array(grouped_energies)
+    occupancies = np.array(grouped_occupancies)
 
     efermi = np.loadtxt(FILEPATH + 'total-dos-efermi.dat')[0,0]
-    energies = energies - efermi
-    occupancies = np.array(grouped_occupancies)
+    energies = energies - eferm
 
     return(energies, occupancies)
 
 def get_lattice_vectors(info):
-    '''TODO: Original lattice vector had 8 decimal places
+    '''
+    Loads the lattice vector and reciprocal lattice vector from the info file
+
+    Params:
+      info (list string): list of every line from the info
+    Returns:
+      zipped_vectors (zipped vectors): lattice_vector: list of length 3
+                                       reciprocal_lattice_vector: list of length 3
     '''
 
     match = '  Lattice Vectors [A]'
@@ -157,6 +173,12 @@ def get_num_kpoints(bandstructure):
 
 def get_num_ions(info):
     '''
+    Gets the number of ions from the info list
+
+    Params:
+      info (list string): list containing every line from info file
+    Returns:
+      num_ions (int): number of ions
     '''
 
     start = ' Ion                        x              y              z'
@@ -198,6 +220,15 @@ def get_num_spinchannels(info):
     return(num_spinchannels)
 
 def gen_outcar(zipped_vectors):
+    '''
+    Generates the VASP OUTCAR file containing the direct lattice vector and
+    reciprocal lattic vector
+
+    Params:
+      zipped_vectors (zipped vectors): lattice_vector: list of length 3
+                                       reciprocal_lattice_vector: list of length 3
+    '''
+
     f = open('OUTCAR', 'w')
     direct_header = '     direct lattice vectors'
     f.write(direct_header.ljust(46) + 'reciprocal lattice vectors\n')
@@ -229,8 +260,8 @@ def gen_procar(num_kpoints, num_bands, num_ions, kpoints, weights, energies, occ
         f.write('{:11.8f}'.format(kz))
         f.write('     weight = {:.8f}\n\n'.format(weight))
 
-        # num of kpoints should equal number of energy groups and occupancy
-        # groups so idx can be used
+        # num of kpoints should equal number of energy items and occupancy
+        # items so idx can be used
         for i, (energy, occupancy) in enumerate(zip(energies[idx,:], occupancies[idx,:])):
             f.write('band' + '{}'.rjust(4).format(i + 1))
             f.write(' # energy' + '{:14.8f}'.format(energy))
