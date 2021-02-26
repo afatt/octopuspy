@@ -77,6 +77,9 @@ def get_eigenvalues(eigen_table, num_bands):
 
     # numpy array with shape (num kpoints, num bands)
     energies = np.array(grouped_energies)
+
+    efermi = np.loadtxt(FILEPATH + 'total-dos-efermi.dat')[0,0]
+    energies = energies - efermi
     occupancies = np.array(grouped_occupancies)
 
     return(energies, occupancies)
@@ -215,8 +218,6 @@ def gen_procar(num_kpoints, num_bands, num_ions, kpoints, weights, energies, occ
     f.write('# of ions:   {}\n\n'.format(num_ions))
 
     kx, ky, kz = zip(*kpoints)
-    print(len(kx))
-    print(weights.shape)
     kpoints_weights = zip(kx, ky, kz, weights)
 
     for idx, (kx, ky, kz, weight) in enumerate(kpoints_weights):
