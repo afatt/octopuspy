@@ -4,7 +4,7 @@
 Generates a PROCAR and OUTCAR file using Octopus info, results, eigenvalues,
 and bandstructure files
 
-Octopus files and what information they contain
+Octopus files and what needed information they contain
 ---------------------------------------
 info -> reciprocal lattice vector, number of ions
 results -> kpoint wieght
@@ -30,11 +30,20 @@ ENERGY_SCALE = 10.0
 def _calc_CBM(bandstructure):
     '''
     '''
+    #_check_partial_occupancy(occupancy)
+    #energy_unoccupied = ma.masked_where(occupancy > 0.5, energy)
+    #return np.amin(energy_unoccupied)
+
     return(CBM)
 
 def _calc_VBM(bandstructure):
     '''
     '''
+
+    # _check_partial_occupancy(occupancy)
+    # energy_occupied = ma.masked_where(occupancy < 0.5, energy)
+    # return np.amax(energy_occupied)
+
     return(VBM)
 
 def get_eigen_table(num_bands, num_kpoints):
