@@ -20,6 +20,7 @@ import numpy.ma as ma
 # FILEPATH = './PbS/bands-static/'
 FILEPATH = './Si/'
 # FILEPATH = './New_Si/bands-static/'
+# FILEPATH = './GaAs_LDA/'
 INFO = FILEPATH + 'info'
 RESULTS = FILEPATH + 'results.out'
 BANDSTRUCTURE = FILEPATH + 'bandstructure'
@@ -46,69 +47,16 @@ def _calc_VBM(bandstructure):
 
     return(VBM)
 
-# def get_eigen_table(num_bands, num_kpoints):
-#     '''
-#     Loads the eigenvalues file and returns the eigenvalue table
-#
-#     Params:
-#       num_bands (int): number of energy bands
-#       num_kpoints (int): number of kpoints
-#     Returns:
-#       eigen_table (list string): list containing each row of the eigenvalue table
-#     '''
-#
-#     f = open(EIGENVALUES, 'r')
-#     text = f.read()
-#     eigen_file = text.splitlines()
-#
-#     start = ' #st  Spin   Eigenvalue      Occupation     Error'
-#     start_idx = eigen_file.index(start)
-#     end_idx = start_idx + 1 + num_kpoints + (num_bands * (num_kpoints))
-#     eigen_table = eigen_file[start_idx + 1:end_idx]
-#
-#     return(eigen_table)
-#
-# def get_eigenvalues(eigen_table, num_bands):
-#     '''
-#     Creates two numpy arrays consisting of the energies and occupancies of
-#     the eigen table from the eigenvalues file
-#
-#     Params:
-#       eigen_table (list string): list containing every line of the eigenvalue
-#                                  eigenvalue table
-#       num_bands (int): number of energy bands
-#     Returns:
-#       energies (numpy array): shape (num kpoints, num bands)
-#       occupancies (numpy array): shape (num kpoints, num bands)
-#     '''
-#
-#     # remove the kpoint line info and create a list of lists consisting of
-#     # each row and column of the eigen table
-#     k_removed_list = [line for line in eigen_table if '#k' not in line]
-#     eigen_list_split = [line.split() for line in k_removed_list]
-#
-#     # save the engergies and occupancies to a new list if the line is not empty
-#     energy_list = [float(line[2]) for line in eigen_list_split if line]
-#     occupancy_list = [float(line[3]) for line in eigen_list_split if line]
-#
-#     # array of form [[kpoint1_energies], ... [kpoint16_energies]]
-#     # array of form [[kpoint1_occupancies], ... [kpoint16_occupancies]]
-#     grouped_energies = [energy_list[i:i + num_bands] for i in range(0, len(energy_list), num_bands)]
-#     grouped_occupancies = [occupancy_list[i:i + num_bands] for i in range(0, len(occupancy_list), num_bands)]
-#
-#     # numpy array with shape (num kpoints, num bands)
-#     energies = np.array(grouped_energies)
-#     occupancies = np.array(grouped_occupancies)
-#
-#     efermi = np.loadtxt(FILEPATH + 'total-dos-efermi.dat')[0,0]
-#     energies = energies - efermi
-#
-#     energies = energies / ENERGY_SCALE
-#
-#     return(energies, occupancies)
-
 def get_eigenvalues(bandstructure):
     '''
+    Isolates the bands from the bandstructure numpy array, subtracts the fermi
+    energy and creates the energies and occupancies numpy arrays
+
+    Params:
+      bandstructure (numpy array): with shape (kpoints, band_info)
+    Returns:
+      energies (numpy array): with shape (num kpoints, num bands)
+      occupancies (numpy array): with shape (num kpoints, num bands)
     '''
 
     # numpy array with shape (num kpoints, num bands)
@@ -119,7 +67,7 @@ def get_eigenvalues(bandstructure):
     # create a numpy array with same shape as energies
     # fill the first bands up to the valence band with an occupancy of 2.0
     occupancies = np.zeros(energies.shape)
-    occupancies[:, 0:4] = 2.0
+    occupancies[energies < 0.0] = 2.0
 
     return(energies, occupancies)
 
@@ -310,10 +258,6 @@ def gen_procar(num_kpoints, num_bands, num_ions, kpoints, weights, energies, occ
             f.write('  {:.3f}\n\n'.format(0.000))
     f.close()
 
-    # wf-kpoint#-band#.cube
-    # wf-k001-st0002.cube
-    # orbitals = [[s, p, d], [s, py, pz, px, dxy, dyz, dz2, dxz, dx2]]
-
 def get_weights(results, num_kpoints):
     '''
     Gets the kpoint weights from the results list
@@ -353,6 +297,7 @@ def load_bandstructure():
 def load_octo_info():
     '''
     Loads the data from info file and puts into list of strings
+    
     Returns:
       info (list string): list containing every line from info file
     '''
@@ -383,14 +328,12 @@ def load_results():
 
 def main():
     bandstructure = load_bandstructure()
-    # energies = get_energies(bandstructure)
     num_bands = get_num_bands(bandstructure)
     num_kpoints = get_num_kpoints(bandstructure)
     kpoints = get_kpoints(bandstructure)
 
     results = load_results()
     weights = get_weights(results, num_kpoints)
-    # eigen_table = get_eigen_table(num_bands, num_kpoints)
     energies, occupancies = get_eigenvalues(bandstructure)
 
     info = load_octo_info()
