@@ -2,7 +2,8 @@
 
 '''
 Generates a PROCAR and OUTCAR file using Octopus info, results, eigenvalues,
-and bandstructure files
+and bandstructure files. The PROCAR and OUTCAR files generated are not true
+VASP files, they contain only the minimum required to use in the effmass package
 
 Octopus files and what needed information they contain
 ---------------------------------------
@@ -14,19 +15,35 @@ bands minimum and maximum
 '''
 
 import re
+import os
+from glob import glob
 import numpy as np
 import numpy.ma as ma
 
-# FILEPATH = './PbS/bands-static/'
-FILEPATH = './Si/'
-# FILEPATH = './New_Si/bands-static/'
-# FILEPATH = './GaAs_LDA/'
+
+ENERGY_SCALE = 1.0
+
+fullpaths = [file for file in glob('./**/bandstructure*', recursive=True)]
+filepaths = [os.path.dirname(path) + '/' for path in fullpaths]
+for idx, path in enumerate(fullpaths):
+    print('[{}] {}\n'.format(idx + 1, path))
+
+filepath_choice = input('Choose the number of which bandstructure file you wish to use: ')
+while True:
+    try:
+        filepath_choice = int(filepath_choice) - 1
+        if -1 < filepath_choice <= (len(filepaths) - 1):
+            FILEPATH = filepaths[filepath_choice]
+            break
+        else:
+            raise ValueError('')
+    except (ValueError, IndexError) as err:
+        filepath_choice = input('Choice must be number between 1 and {}, choose again: '.format(len(filepaths)))
+
 INFO = FILEPATH + 'info'
 RESULTS = FILEPATH + 'results.out'
 BANDSTRUCTURE = FILEPATH + 'bandstructure'
 EIGENVALUES = FILEPATH + 'eigenvalues'
-
-ENERGY_SCALE = 1.0
 
 def _calc_CBM(bandstructure):
     '''
@@ -297,7 +314,7 @@ def load_bandstructure():
 def load_octo_info():
     '''
     Loads the data from info file and puts into list of strings
-    
+
     Returns:
       info (list string): list containing every line from info file
     '''
@@ -325,6 +342,7 @@ def load_results():
     f.close()
 
     return(results)
+
 
 def main():
     bandstructure = load_bandstructure()
