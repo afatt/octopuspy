@@ -23,13 +23,16 @@ import numpy.ma as ma
 '''
 octo2vasp/
  --octo2vasp.py
-   --func: user_prompt
-   --func: gen_procar
-   --func: gen_outcar
-   --func: save_plots
-   --func: display_plots
+   --class: Data
+     --attr: all attributes from the other modules
+     --meth: load_data
+     --meth: user_prompt
+     --meth: gen_procar
+     --meth: gen_outcar
+     --meth: save_plots
+     --meth: display_plots
  --bandstructure.py
-   --class: bandstructure
+   --class: Bandstructure
      --attr: bands
      --attr: kpoints
      --attr: eigenvalues
@@ -42,15 +45,19 @@ octo2vasp/
      --meth: calc_CBM
      --meth: calc_VBM
  --info.py
-   --class: info
+   --class: Info
      --attr: reciprocal_lattice_vector
      --attr: number_of_ions
      --meth: get_reciprocal_lattice_vector
      --meth: get_number_of_ions
  --results.py
-   --class: results
+   --class: Results
      --attr: weights
      --meth: get_weights
+ --calc_effmass.py
+   --func: user_prompt
+   --func: save_effmass
+   --func: save_results
 '''
 ENERGY_SCALE = 1.0
 
