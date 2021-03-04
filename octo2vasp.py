@@ -20,7 +20,38 @@ from glob import glob
 import numpy as np
 import numpy.ma as ma
 
-
+'''
+octo2vasp/
+ --octo2vasp.py
+   --func: user_prompt
+   --func: gen_procar
+   --func: gen_outcar
+   --func: save_plots
+   --func: display_plots
+ --bandstructure.py
+   --class: bandstructure
+     --attr: bands
+     --attr: kpoints
+     --attr: eigenvalues
+     --meth: get_bands
+     --meth: get_kpoints
+     --meth: get_eigenvalues
+     --meth: get_efermi
+     --meth: calc_efermi? used as a verification or possibly a good method
+     --meth: plot_bands
+     --meth: calc_CBM
+     --meth: calc_VBM
+ --info.py
+   --class: info
+     --attr: reciprocal_lattice_vector
+     --attr: number_of_ions
+     --meth: get_reciprocal_lattice_vector
+     --meth: get_number_of_ions
+ --results.py
+   --class: results
+     --attr: weights
+     --meth: get_weights
+'''
 ENERGY_SCALE = 1.0
 
 fullpaths = [file for file in glob('./**/bandstructure*', recursive=True)]
