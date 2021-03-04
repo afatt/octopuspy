@@ -8,7 +8,6 @@ import numpy as np
 class Bandstructure():
     ''' '''
     def __init__(self, filepath):
-        self.bands = None
         self._bandstructure = None
         self._bandstructure_path = filepath + 'bandstructure'
         self._efermi_path = filepath + 'total-dos-efermi.dat'
@@ -77,7 +76,7 @@ class Bandstructure():
     def plot_bands():
         '''
         '''
-        
+
     def _load_bandstructure(self):
         '''
         Loads the bandstructure file into a numpy array (without header line)

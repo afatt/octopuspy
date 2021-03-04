@@ -19,6 +19,7 @@ import os
 from glob import glob
 import numpy as np
 import numpy.ma as ma
+import info
 import bandstructure
 
 '''
@@ -86,12 +87,16 @@ BANDSTRUCTURE = FILEPATH + 'bandstructure'
 EIGENVALUES = FILEPATH + 'eigenvalues'
 
 bs = bandstructure.Bandstructure(FILEPATH)
-print(bs.bands)
 print(bs.get_num_bands())
 print(bs.get_num_kpoints())
 #print(bs.get_eigenvalues())
 en, occ = bs.get_eigenvalues()
 print(en)
+
+info = info.Info(FILEPATH)
+print(info.get_num_ions())
+print(info.num_ions)
+print(info.get_lattice_vectors())
 
 def _calc_CBM(bandstructure):
     '''
