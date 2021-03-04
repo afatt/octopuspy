@@ -20,6 +20,7 @@ from glob import glob
 import numpy as np
 import numpy.ma as ma
 import info
+import results
 import bandstructure
 
 '''
@@ -97,6 +98,10 @@ info = info.Info(FILEPATH)
 print(info.get_num_ions())
 print(info.num_ions)
 print(info.get_lattice_vectors())
+
+results = results.Results(FILEPATH, bs.get_num_kpoints())
+print(results.weights)
+print(results.get_weights())
 
 def _calc_CBM(bandstructure):
     '''
