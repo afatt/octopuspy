@@ -14,7 +14,6 @@ bandstructure -> number of kpoints, num bands, CBM, VBM and  condcution, valence
 bands minimum and maximum
 '''
 
-import re
 import os
 from glob import glob
 import numpy as np
@@ -65,22 +64,7 @@ octo2vasp/
 
 ENERGY_SCALE = 1.0
 
-fullpaths = [file for file in glob('./**/bandstructure*', recursive=True)]
-filepaths = [os.path.dirname(path) + '/' for path in fullpaths]
-for idx, path in enumerate(fullpaths):
-    print('[{}] {}\n'.format(idx + 1, path))
 
-filepath_choice = input('Choose the number of which bandstructure file you wish to use: ')
-while True:
-    try:
-        filepath_choice = int(filepath_choice) - 1
-        if -1 < filepath_choice <= (len(filepaths) - 1):
-            FILEPATH = filepaths[filepath_choice]
-            break
-        else:
-            raise ValueError('')
-    except (ValueError, IndexError) as err:
-        filepath_choice = input('Choice must be number between 1 and {}, choose again: '.format(len(filepaths)))
 
 INFO = FILEPATH + 'info'
 RESULTS = FILEPATH + 'results.out'
@@ -102,6 +86,112 @@ print(info.get_lattice_vectors())
 results = results.Results(FILEPATH, bs.get_num_kpoints())
 print(results.weights)
 print(results.get_weights())
+
+
+class Octo2Vasp():
+    ''' '''
+    FILEPATH = user_prompt()
+
+    def __init__(self):
+        self.bs = bandstructure.Bandstructure(FILEPATH)
+        self.info = info.Info(FILEPATH)
+        self.results = results.Results(FILEPATH, bs.num_kpoints)
+
+        self.num_kpoints = self.bs.num_kpoints
+        self.num_bands = self.bs.get_num_bands
+        self.num_ions = self.info.num_ions
+
+    def gen_outcar(self):
+        '''
+        Generates the VASP OUTCAR file containing the direct lattice vector and
+        reciprocal lattic vector
+
+        Params:
+          zipped_vectors (zipped vectors): lattice_vector: list of length 3
+                                           reciprocal_lattice_vector: list of length 3
+        '''
+
+        zipped_vectors = self.
+
+        f = open('OUTCAR', 'w')
+        direct_header = '     direct lattice vectors'
+        f.write(direct_header.ljust(46) + 'reciprocal lattice vectors\n')
+        for vec, recp_vect in zipped_vectors:
+            f.write(vec + ' ' + recp_vect + '\n')
+        f.close()
+
+    def gen_procar(num_kpoints, num_bands, num_ions, kpoints, weights, energies, occupancies):
+        '''
+        TODO: Test: All kpoints must match this regular expression
+        k-point\s+(\d+)\s*:\s+([- ][01].\d{8})([- ][01].\d{8})([- ][01].\d{8})\s+weight = ([01].\d+)
+        '''
+
+        f = open('PROCAR', 'w')
+        f.write('PROCAR new format' + '\n')
+        f.write('# of k-points: {}          '.format(num_kpoints))
+        f.write('# of bands:  {}         '.format(num_bands))
+        f.write('# of ions:   {}\n\n'.format(num_ions))
+
+        kx, ky, kz = zip(*kpoints)
+        kpoints_weights = zip(kx, ky, kz, weights)
+
+        for idx, (kx, ky, kz, weight) in enumerate(kpoints_weights):
+
+            f.write(' k-point' + str(idx + 1).rjust(5))
+            f.write(' :    ')
+            f.write('{:11.8f}'.format(kx))
+            f.write('{:11.8f}'.format(ky))
+            f.write('{:11.8f}'.format(kz))
+            f.write('     weight = {:.8f}\n\n'.format(weight))
+
+            # num of kpoints should equal number of energy items and occupancy
+            # items so idx can be used
+            for i, (energy, occupancy) in enumerate(zip(energies[idx,:], occupancies[idx,:])):
+                f.write('band' + '{}'.rjust(4).format(i + 1))
+                f.write(' # energy' + '{:14.8f}'.format(energy))
+                f.write(' # occ.' + '{:12.8f}\n\n'.format(occupancy))
+                f.write('ion      s      p      d    tot\n')
+                for ion in range(0, num_ions):
+                    f.write('  {}'.format(ion + 1))
+                    f.write('  {:.3f}'.format(0.000))
+                    f.write('  {:.3f}'.format(0.000))
+                    f.write('  {:.3f}'.format(0.000))
+                    f.write('  {:.3f}\n'.format(0.000))
+                f.write('tot')
+                f.write('  {:.3f}'.format(0.000))
+                f.write('  {:.3f}'.format(0.000))
+                f.write('  {:.3f}'.format(0.000))
+                f.write('  {:.3f}\n\n'.format(0.000))
+        f.close()
+
+    def user_prompt():
+        ''' '''
+        fullpaths = [file for file in glob('./**/bandstructure*', recursive=True)]
+        filepaths = [os.path.dirname(path) + '/' for path in fullpaths]
+        for idx, path in enumerate(fullpaths):
+            print('[{}] {}\n'.format(idx + 1, path))
+
+        filepath_choice = input('Choose the number of which bandstructure file you wish to use: ')
+        while True:
+            try:
+                filepath_choice = int(filepath_choice) - 1
+                if -1 < filepath_choice <= (len(filepaths) - 1):
+                    filepath = filepaths[filepath_choice]
+                    break
+                else:
+                    raise ValueError('')
+            except (ValueError, IndexError) as err:
+                filepath_choice = input('Choice must be number between 1 and {}, choose again: '.format(len(filepaths)))
+
+         return(filepath)
+
+    def main():
+
+
+
+if __name__ == '__main__':
+    main()
+
 
 def _calc_CBM(bandstructure):
     '''
@@ -209,62 +299,9 @@ def index_of_substring(input_list, substring):
             return(index)
     return(-1)
 
-def get_num_kpoints(bandstructure):
-    '''
-    Extracts the number of kpoints from the bandstructure numpy array
 
-    Params:
-      bandstructure (numpy array): with shape (kpoints, band_info)
-    Returns:
-      num_kpoints (int): number of kpoints
-    '''
 
-    # numpy array in shape (kpoints, band_info)
-    num_kpoints = bandstructure.shape[0]
 
-    return(num_kpoints)
-
-def get_num_ions(info):
-    '''
-    Gets the number of ions from the info list
-
-    Params:
-      info (list string): list containing every line from info file
-    Returns:
-      num_ions (int): number of ions
-    '''
-
-    start = ' Ion                        x              y              z'
-
-    # TODO: this might not be the first time this occurs
-    end = ' ----------------------------------------------------------'
-    start_idx = info.index(start)
-    end_idx = info.index(end)
-
-    # find the length of the list between the start and end text which is
-    # equivalent to number of ions. convert to string so it can be saved to file
-    num_ions = str(len(info[start_idx + 1:end_idx]))
-
-    return(int(num_ions))
-
-def get_kpoints(bandstructure):
-    '''
-    Extracts the kpoints from the bandstructure numpy array
-
-    Params:
-      bandstructure (numpy array): with shape (kpoints, band_info)
-    Returns:
-      kpoints (zipped arrays): (kx float array, ky float array, kz float array)
-    '''
-
-    kx = bandstructure[:,1]
-    ky = bandstructure[:,2]
-    kz = bandstructure[:,3]
-
-    # zip for easy iteration
-    kpoints = zip(kx, ky, kz)
-
-    return(kpoints)
 
 def get_num_spinchannels(info):
     '''
@@ -272,66 +309,7 @@ def get_num_spinchannels(info):
     '''
     return(num_spinchannels)
 
-def gen_outcar(zipped_vectors):
-    '''
-    Generates the VASP OUTCAR file containing the direct lattice vector and
-    reciprocal lattic vector
 
-    Params:
-      zipped_vectors (zipped vectors): lattice_vector: list of length 3
-                                       reciprocal_lattice_vector: list of length 3
-    '''
-
-    f = open('OUTCAR', 'w')
-    direct_header = '     direct lattice vectors'
-    f.write(direct_header.ljust(46) + 'reciprocal lattice vectors\n')
-    for vec, recp_vect in zipped_vectors:
-        f.write(vec + ' ' + recp_vect + '\n')
-    f.close()
-
-def gen_procar(num_kpoints, num_bands, num_ions, kpoints, weights, energies, occupancies):
-    '''
-    TODO: Test: All kpoints must match this regular expression
-    k-point\s+(\d+)\s*:\s+([- ][01].\d{8})([- ][01].\d{8})([- ][01].\d{8})\s+weight = ([01].\d+)
-    '''
-
-    f = open('PROCAR', 'w')
-    f.write('PROCAR new format' + '\n')
-    f.write('# of k-points: {}          '.format(num_kpoints))
-    f.write('# of bands:  {}         '.format(num_bands))
-    f.write('# of ions:   {}\n\n'.format(num_ions))
-
-    kx, ky, kz = zip(*kpoints)
-    kpoints_weights = zip(kx, ky, kz, weights)
-
-    for idx, (kx, ky, kz, weight) in enumerate(kpoints_weights):
-
-        f.write(' k-point' + str(idx + 1).rjust(5))
-        f.write(' :    ')
-        f.write('{:11.8f}'.format(kx))
-        f.write('{:11.8f}'.format(ky))
-        f.write('{:11.8f}'.format(kz))
-        f.write('     weight = {:.8f}\n\n'.format(weight))
-
-        # num of kpoints should equal number of energy items and occupancy
-        # items so idx can be used
-        for i, (energy, occupancy) in enumerate(zip(energies[idx,:], occupancies[idx,:])):
-            f.write('band' + '{}'.rjust(4).format(i + 1))
-            f.write(' # energy' + '{:14.8f}'.format(energy))
-            f.write(' # occ.' + '{:12.8f}\n\n'.format(occupancy))
-            f.write('ion      s      p      d    tot\n')
-            for ion in range(0, num_ions):
-                f.write('  {}'.format(ion + 1))
-                f.write('  {:.3f}'.format(0.000))
-                f.write('  {:.3f}'.format(0.000))
-                f.write('  {:.3f}'.format(0.000))
-                f.write('  {:.3f}\n'.format(0.000))
-            f.write('tot')
-            f.write('  {:.3f}'.format(0.000))
-            f.write('  {:.3f}'.format(0.000))
-            f.write('  {:.3f}'.format(0.000))
-            f.write('  {:.3f}\n\n'.format(0.000))
-    f.close()
 
 def get_weights(results, num_kpoints):
     '''
