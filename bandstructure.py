@@ -5,12 +5,13 @@ import numpy as np
 
 class Bandstructure():
     ''' '''
-    def __init__(self, filepath):
+    def __init__(self, filepath, energy_scale):
         self._bandstructure = None
         self._bandstructure_path = filepath + 'bandstructure'
         self._efermi_path = filepath + 'total-dos-efermi.dat'
-        self.energies = None
         self.eigenvalues = None
+        self.energies = None
+        self.energy_scale = energy_scale
         self.kpoints = None
         self.num_bands = 0
         self.num_kpoints = 0
@@ -18,6 +19,7 @@ class Bandstructure():
         self._load_bandstructure()
         self._set_num_bands()
         self._set_num_kpoints()
+        self._set_kpoints()
 
     def get_eigenvalues(self):
         '''
@@ -34,7 +36,8 @@ class Bandstructure():
         # numpy array with shape (num kpoints, num bands)
         energies = self._bandstructure[:, 4:]
         efermi = np.loadtxt(self._efermi_path)[0,0]
-        self.energies = energies - efermi
+        energies = energies - efermi
+        self.energies = energies / self.energy_scale
 
         # create a numpy array with same shape as energies
         # fill the first bands up to the valence band with an occupancy of 2.0
@@ -42,6 +45,20 @@ class Bandstructure():
         self.occupancies[energies < 0.0] = 2.0
 
         return(self.energies, self.occupancies)
+
+    def get_kpoints(self):
+        '''
+        Extracts the kpoints from the bandstructure numpy array
+
+        Params:
+          bandstructure (numpy array): with shape (kpoints, band_info)
+        Returns:
+          kpoints (zipped arrays): (kx float array, ky float array, kz float array)
+        '''
+
+        kpoints = self.kpoints
+
+        return(kpoints)
 
     def get_num_bands(self):
         '''
@@ -84,6 +101,17 @@ class Bandstructure():
         '''
 
         self._bandstructure = np.array(np.loadtxt(self._bandstructure_path))
+
+    def _set_kpoints(self):
+        '''
+        '''
+
+        kx = self._bandstructure[:,1]
+        ky = self._bandstructure[:,2]
+        kz = self._bandstructure[:,3]
+
+        # zip for easy iteration
+        self.kpoints = zip(kx, ky, kz)
 
     def _set_num_bands(self):
         '''
