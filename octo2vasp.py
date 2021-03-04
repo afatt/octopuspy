@@ -19,6 +19,7 @@ import os
 from glob import glob
 import numpy as np
 import numpy.ma as ma
+import bandstructure
 
 '''
 octo2vasp/
@@ -59,6 +60,7 @@ octo2vasp/
    --func: save_effmass
    --func: save_results
 '''
+
 ENERGY_SCALE = 1.0
 
 fullpaths = [file for file in glob('./**/bandstructure*', recursive=True)]
@@ -82,6 +84,14 @@ INFO = FILEPATH + 'info'
 RESULTS = FILEPATH + 'results.out'
 BANDSTRUCTURE = FILEPATH + 'bandstructure'
 EIGENVALUES = FILEPATH + 'eigenvalues'
+
+bs = bandstructure.Bandstructure(FILEPATH)
+print(bs.bands)
+print(bs.get_num_bands())
+print(bs.get_num_kpoints())
+#print(bs.get_eigenvalues())
+en, occ = bs.get_eigenvalues()
+print(en)
 
 def _calc_CBM(bandstructure):
     '''
