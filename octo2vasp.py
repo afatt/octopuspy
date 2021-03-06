@@ -12,6 +12,9 @@ results -> kpoint wieght
 eigenvalues -> energies, occupancies, number of bands
 bandstructure -> number of kpoints, num bands, CBM, VBM and  condcution, valence
 bands minimum and maximum
+
+Example use:
+python octo2vasp.py --name Si
 '''
 
 import os
@@ -31,6 +34,7 @@ class Octo2Vasp():
         self.bs = bandstructure.Bandstructure(self.filepath, energy_scale)
         self.info = info.Info(self.filepath)
         self.results = results.Results(self.filepath, self.bs.num_kpoints)
+
 
     def gen_outcar(self):
         '''
@@ -122,8 +126,6 @@ class Octo2Vasp():
             except (ValueError, IndexError) as err:
                 filepath_choice = input('Choice must be number between 1 and {}, choose again: '.format(len(filepaths)))
 
-         #return(filepath)
-
     def _calc_CBM(bandstructure):
         '''
         '''
@@ -165,6 +167,7 @@ def main():
     octo2vasp = Octo2Vasp(energy_scale=1.0)
     octo2vasp.gen_outcar()
     octo2vasp.gen_procar()
+    octo2vasp.bs.plot_bands()
 
 
 if __name__ == '__main__':
