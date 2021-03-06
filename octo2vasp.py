@@ -27,7 +27,6 @@ import bandstructure
 
 
 class Octo2Vasp():
-    ''' '''
 
     def __init__(self, energy_scale):
         self.filepath = self.user_prompt()
@@ -41,7 +40,7 @@ class Octo2Vasp():
         Generates the VASP OUTCAR file containing the direct lattice vector and
         reciprocal lattic vector
 
-        Params:
+        Args:
           zipped_vectors (zipped vectors): lattice_vector: list of length 3
                                            reciprocal_lattice_vector: list of length 3
         '''
@@ -125,43 +124,6 @@ class Octo2Vasp():
                     raise ValueError('')
             except (ValueError, IndexError) as err:
                 filepath_choice = input('Choice must be number between 1 and {}, choose again: '.format(len(filepaths)))
-
-    def _calc_CBM(bandstructure):
-        '''
-        '''
-        #_check_partial_occupancy(occupancy)
-        #energy_unoccupied = ma.masked_where(occupancy > 0.5, energy)
-        #return np.amin(energy_unoccupied)
-
-        return(CBM)
-
-    def _calc_VBM(bandstructure):
-        '''
-        '''
-
-        # _check_partial_occupancy(occupancy)
-        # energy_occupied = ma.masked_where(occupancy < 0.5, energy)
-        # return np.amax(energy_occupied)
-
-        return(VBM)
-
-    def index_of_substring(input_list, substring):
-        '''
-        Returns the first occurance of a substring in a list
-
-        Params:
-          input_list (list): list of string items
-          substring (str): string to find the index of
-        Returns:
-          index (int): the index of the item containing the first occurance of
-                       substring (str)
-          -1 (int): there was no index found
-        '''
-
-        for index, item in enumerate(input_list):
-            if substring in item:
-                return(index)
-        return(-1)
 
 def main():
     octo2vasp = Octo2Vasp(energy_scale=1.0)
