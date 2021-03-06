@@ -4,7 +4,8 @@ available to use
 
 Information contained in bandstructure file
 -------------------------------------------
-bandstructure -> number of kpoints, num bands, CBM, VBM and  condcution, valence
+bandstructure -> number of kpoints, number of bands, CBM, VBM, condcution band,
+                 and valence band
 '''
 
 import numpy as np
