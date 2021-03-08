@@ -14,13 +14,17 @@ bandstructure -> number of kpoints, num bands, CBM, VBM and  condcution, valence
 bands minimum and maximum
 
 Example use:
-python octo2vasp.py --name Si
+python octo2vasp.py --name Si_03082021 --energy_scale 1.0
 '''
 
 import os
-from glob import glob
+import re
+import sys
 import numpy as np
 import numpy.ma as ma
+from glob import glob
+
+# local modules
 import info
 import results
 import bandstructure
@@ -28,7 +32,9 @@ import bandstructure
 
 class Octo2Vasp():
 
-    def __init__(self, energy_scale):
+    def __init__(self, name, energy_scale):
+        print("Semiconductor name: " + name)
+        print("Energy Scale: " + str(energy_scale))
         self.filepath = self.user_prompt()
         self.bs = bandstructure.Bandstructure(self.filepath, energy_scale)
         self.info = info.Info(self.filepath)
@@ -106,7 +112,10 @@ class Octo2Vasp():
         f.close()
 
     def user_prompt(self):
-        ''' '''
+        '''
+        Prompts the user to choose which bandstructure file to use from all
+        available under the current working directory
+        '''
         fullpaths = [file for file in glob('./**/bandstructure*', recursive=True)]
         filepaths = [os.path.dirname(path) + '/' for path in fullpaths]
         for idx, path in enumerate(fullpaths):
@@ -126,7 +135,38 @@ class Octo2Vasp():
                 filepath_choice = input('Choice must be number between 1 and {}, choose again: '.format(len(filepaths)))
 
 def main():
-    octo2vasp = Octo2Vasp(energy_scale=1.0)
+    argument_list = sys.argv[1:]
+    args = argument_list[::2]
+    values = argument_list[1::2]
+
+    # arg default values, raise exception on required args
+    name = ''
+    energy_scale = 1.0
+    try:
+
+        if not len(args):
+            raise ValueError('Must include a name using option -n or --name')
+
+        for curr_arg, curr_value in zip(args, values):
+            print(curr_arg)
+            print(sys.argv)
+            if curr_arg in ('-n', '--name'):
+
+                name = curr_value
+                # check if its a string
+                # check if its a valid filename
+
+            elif curr_arg in ('-e', '--energy_scale'):
+                energy_scale = curr_value
+                print('es: ' + str(energy_scale))
+
+    except ValueError as err:
+        print(str(err))
+
+    if name == '':
+        raise ValueError('Must include a name using option -n or --name')
+
+    octo2vasp = Octo2Vasp(name=name, energy_scale=energy_scale)
     octo2vasp.gen_outcar()
     octo2vasp.gen_procar()
     octo2vasp.bs.plot_bands()
