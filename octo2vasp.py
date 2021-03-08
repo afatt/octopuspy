@@ -20,6 +20,7 @@ python octo2vasp.py --name Si_03082021 --energy_scale 1.0
 import os
 import re
 import sys
+import unicodedata
 import numpy as np
 import numpy.ma as ma
 from glob import glob
@@ -134,6 +135,21 @@ class Octo2Vasp():
             except (ValueError, IndexError) as err:
                 filepath_choice = input('Choice must be number between 1 and {}, choose again: '.format(len(filepaths)))
 
+def slugify(value, allow_unicode=False):
+    """
+    Taken from https://github.com/django/django/blob/master/django/utils/text.py
+    Convert to ASCII if 'allow_unicode' is False. Convert spaces or repeated
+    dashes to single dashes. Remove characters that aren't alphanumerics,
+    underscores, or hyphens Also strip leading and trailing whitespace, dashes,
+    and underscores.
+    """
+    value = str(value)
+    if allow_unicode:
+        value = unicodedata.normalize('NFKC', value)
+    else:
+        value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
+    return re.sub(r'[-\s]+', '-', value).strip('-_')
+
 def main():
     argument_list = sys.argv[1:]
     args = argument_list[::2]
@@ -142,26 +158,22 @@ def main():
     # arg default values, raise exception on required args
     name = ''
     energy_scale = 1.0
-    try:
 
-        if not len(args):
-            raise ValueError('Must include a name using option -n or --name')
+    if not len(args):
+        raise ValueError('Must include a name using option -n or --name')
 
-        for curr_arg, curr_value in zip(args, values):
-            print(curr_arg)
-            print(sys.argv)
-            if curr_arg in ('-n', '--name'):
+    for curr_arg, curr_value in zip(args, values):
+        if curr_arg in ('-n', '--name'):
+            name = curr_value
 
-                name = curr_value
-                # check if its a string
-                # check if its a valid filename
+            # chang to a valid filename
+            name = slugify(name)
 
-            elif curr_arg in ('-e', '--energy_scale'):
-                energy_scale = curr_value
-                print('es: ' + str(energy_scale))
-
-    except ValueError as err:
-        print(str(err))
+        elif curr_arg in ('-e', '--energy_scale'):
+            try:
+                energy_scale = float(curr_value)
+            except ValueError as err:
+                raise ValueError('Energy scale must be a int or float, default is 1.0')
 
     if name == '':
         raise ValueError('Must include a name using option -n or --name')
