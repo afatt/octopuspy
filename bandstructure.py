@@ -17,6 +17,7 @@ class Bandstructure():
     file
 
     Attributes:
+      _name (string): name of the semiconductor used for saving output files
       _bandstructure_path (string): filepath with the addition of the bandstructure file
       _bandstructure (numpy array): with shape (kpoints, band_info)
       _efermi_path (string): filepath with the addition of the total-dos-efermi.dat file
@@ -28,12 +29,14 @@ class Bandstructure():
       energies (numpy array): with shape (num kpoints, num bands)
       occupancies (numpy array): with shape (num kpoints, num bands)
     '''
-    def __init__(self, filepath, energy_scale):
+    def __init__(self, name, filepath, energy_scale):
         '''
         Args:
+          name (string): name of the semiconductor used for saving output files
           filepath (string): the filepath to the bandstructure and total-dos-efermi.dat files
           energy_scale (float): how much to scale down the bandstructure energies
         '''
+        self._name = name
         self._bandstructure_path = filepath + 'bandstructure'
         self._bandstructure = np.array(np.loadtxt(self._bandstructure_path))
         self._efermi_path = filepath + 'total-dos-efermi.dat'
@@ -114,7 +117,7 @@ class Bandstructure():
         ax.tick_params(axis='both',labelsize=12)
 
         plt.axhline(y=0)
-        fig.savefig('bandstructure_plot.png')
+        fig.savefig('./gen_vasp/' + self._name + '/bandstructure_plot.png')
 
     def _get_conduction_band(self, unoccupied_bands):
         '''

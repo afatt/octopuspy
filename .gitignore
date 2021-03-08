@@ -3,3 +3,4 @@ OUTCAR
 PROCAR
 eff-mass-env/
 test_data/
+gen_vasp/

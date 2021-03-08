@@ -15,6 +15,9 @@ bands minimum and maximum
 
 Example use:
 python octo2vasp.py --name Si_03082021 --energy_scale 1.0
+
+Outputs:
+./gen_vasp/Si/PROCAR, ./gen_vasp/Si/OUTCAR, ./gen_vasp/Si/bandstructure_plot.png
 '''
 
 import os
@@ -34,10 +37,11 @@ import bandstructure
 class Octo2Vasp():
 
     def __init__(self, name, energy_scale):
+        self.name = name
         print("Semiconductor name: " + name)
         print("Energy Scale: " + str(energy_scale))
         self.filepath = self.user_prompt()
-        self.bs = bandstructure.Bandstructure(self.filepath, energy_scale)
+        self.bs = bandstructure.Bandstructure(self.name, self.filepath, energy_scale)
         self.info = info.Info(self.filepath)
         self.results = results.Results(self.filepath, self.bs.num_kpoints)
 
@@ -54,7 +58,7 @@ class Octo2Vasp():
 
         zipped_vectors = self.info.get_lattice_vectors()
 
-        f = open('OUTCAR', 'w')
+        f = open('./gen_vasp/' + self.name +  '/OUTCAR', 'w')
         direct_header = '     direct lattice vectors'
         f.write(direct_header.ljust(46) + 'reciprocal lattice vectors\n')
         for vec, recp_vect in zipped_vectors:
@@ -74,7 +78,7 @@ class Octo2Vasp():
         num_ions = self.info.num_ions
         weights = self.results.weights
 
-        f = open('PROCAR', 'w')
+        f = open('./gen_vasp/' + self.name +  '/PROCAR', 'w')
         f.write('PROCAR new format' + '\n')
         f.write('# of k-points: {}          '.format(num_kpoints))
         f.write('# of bands:  {}         '.format(num_bands))
@@ -168,6 +172,13 @@ def main():
 
             # chang to a valid filename
             name = slugify(name)
+
+            # create a folder where the files for this semiconductor will be
+            # saved
+            try:
+                os.mkdir('./gen_vasp/' + name )
+            except FileExistsError as err:
+                raise FileExistsError('Can not make a folder of the same name: %s' % name)
 
         elif curr_arg in ('-e', '--energy_scale'):
             try:
