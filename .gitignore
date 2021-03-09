@@ -1,6 +1,5 @@
-bandstructure.dat
-OUTCAR
-PROCAR
+__pycache__
 eff-mass-env/
 test_data/
 gen_vasp/
+results/
