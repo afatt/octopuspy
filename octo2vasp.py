@@ -8,10 +8,9 @@ VASP files, they contain only the minimum required to use in the effmass package
 Octopus files and what needed information they contain
 ---------------------------------------
 info -> reciprocal lattice vector, number of ions
-results -> kpoint wieght
-eigenvalues -> energies, occupancies, number of bands
-bandstructure -> number of kpoints, num bands, CBM, VBM and  condcution, valence
-bands minimum and maximum
+results -> kpoint weight
+bandstructure -> number of kpoints, num bands, energies, occupancies (calculated)
+conduction band, valence band, conduction band min, and valence band max
 
 Example use:
 python octo2vasp.py --name Si_03082021 --energy_scale 1.0
@@ -67,8 +66,7 @@ class Octo2Vasp():
 
     def gen_procar(self):
         '''
-        TODO: Test: All kpoints must match this regular expression
-        k-point\s+(\d+)\s*:\s+([- ][01].\d{8})([- ][01].\d{8})([- ][01].\d{8})\s+weight = ([01].\d+)
+
         '''
 
         kpoints = self.bs.kpoints
