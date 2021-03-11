@@ -190,7 +190,7 @@ def main():
     octo2vasp = Octo2Vasp(name=name, energy_scale=energy_scale)
     octo2vasp.gen_outcar()
     octo2vasp.gen_procar()
-    octo2vasp.bs.plot_bands()
+    #octo2vasp.bs.plot_bands()
 
 
 if __name__ == '__main__':

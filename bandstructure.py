@@ -168,7 +168,8 @@ class Bandstructure():
         # of those numpy arrays
         num_occupied_bands = int(occupied_bands.shape[0] / self.num_kpoints)
         num_unoccupied_bands = int(unoccupied_bands.shape[0] / self.num_kpoints)
-
+        print(num_occupied_bands)
+        print(num_unoccupied_bands)
         # reshape so its not just a single dimensional numpy array, and it has
         # a row for each band
         occupied_bands = np.reshape(occupied_bands,
