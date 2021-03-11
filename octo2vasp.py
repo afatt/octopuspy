@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 '''
-Generates a PROCAR and OUTCAR file using Octopus info, results, eigenvalues,
+Generates a PROCAR and OUTCAR file using Octopus info, results,
 and bandstructure files. The PROCAR and OUTCAR files generated are not true
 VASP files, they contain only the minimum required to use in the effmass package
 
@@ -12,11 +12,11 @@ results -> kpoint weight
 bandstructure -> number of kpoints, num bands, energies, occupancies (calculated)
 conduction band, valence band, conduction band min, and valence band max
 
-Example use:
+Example use:           (required arg)     (optional arg) 
 python octo2vasp.py --name Si_03082021 --energy_scale 1.0
 
 Outputs:
-./gen_vasp/Si/PROCAR, ./gen_vasp/Si/OUTCAR, ./gen_vasp/Si/bandstructure_plot.png
+./gen_vasp/Si_03082021/PROCAR, ./gen_vasp/Si_03082021/OUTCAR, ./gen_vasp/Si_03082021/bandstructure_plot.png
 '''
 
 import os
@@ -190,7 +190,7 @@ def main():
     octo2vasp = Octo2Vasp(name=name, energy_scale=energy_scale)
     octo2vasp.gen_outcar()
     octo2vasp.gen_procar()
-    #octo2vasp.bs.plot_bands()
+    octo2vasp.bs.simple_plot()
 
 
 if __name__ == '__main__':

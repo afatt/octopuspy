@@ -65,7 +65,7 @@ class Bandstructure():
         energies = self._bandstructure[:, 4:]
         energies = energies - self.efermi
         self.energies = energies / self.energy_scale
-
+        np.savetxt('energies_efermi', energies)
         # create a numpy array with same shape as energies
         # fill the first bands up to the valence band with an occupancy of 2.0
         self.occupancies = np.zeros(energies.shape)
@@ -109,6 +109,29 @@ class Bandstructure():
 
         ax.plot(x_data[vb_max_index], vb_max, '*')
         ax.plot(x_data[cb_min_index], cb_min, '*')
+        ax.set_ylabel('E-Ef')
+        ax.set_title('Bulk Bandstructure')
+        ax.set_xticks([0.00,0.118,0.255,0.391,0.726,1.000])
+        ax.set_xticklabels(['K','Gamma','X','W','K','Gamma','L','U','W','L','K'])
+        ax.set_xticks([0.00,0.148,0.289,0.359,0.408,0.557,0.679,0.765,0.814,0.914,1.000])
+        ax.tick_params(axis='both',labelsize=12)
+
+        plt.axhline(y=0)
+        fig.savefig('./gen_vasp/' + self._name + '/bandstructure_plot.png')
+
+    def simple_plot(self):
+        '''
+        Plots the bands without identifying the valence or conduction bands
+        '''
+
+        fig = plt.figure()
+        ax = fig.add_axes([0.1,0.1,0.8,0.8])
+
+        x_data = self._bandstructure[:,0]
+
+        for band in self.energies.T:
+            ax.plot(x_data, band, color='indigo')
+
         ax.set_ylabel('E-Ef')
         ax.set_title('Bulk Bandstructure')
         ax.set_xticks([0.00,0.118,0.255,0.391,0.726,1.000])

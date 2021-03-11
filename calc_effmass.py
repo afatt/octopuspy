@@ -6,7 +6,9 @@ https://nbviewer.jupyter.org/github/lucydot/effmass/blob/master/paper/notebook.i
 This script is meant to provide the results of the effective mass of any semiconductor
 '''
 
+import os
 import sys
+from glob import glob
 from shutil import copyfile
 
 # import scientific libraries
@@ -29,19 +31,41 @@ semicond = input('type the name of your semiconductor: ')
 settings = inputs.Settings(extrema_search_depth=extrema_search_depth,
                            energy_range=energy_range)
 
+
+'''
+Prompts the user to choose which bandstructure file to use from all
+available under the current working directory
+'''
+fullpaths = [file for file in glob('./**/PROCAR', recursive=True)]
+filepaths = [os.path.dirname(path) + '/' for path in fullpaths]
+for idx, path in enumerate(fullpaths):
+    print('[{}] {}\n'.format(idx + 1, path))
+
+filepath_choice = input('Choose the number of which PROCAR file you wish to use: ')
+while True:
+    try:
+        filepath_choice = int(filepath_choice) - 1
+        if -1 < filepath_choice <= (len(filepaths) - 1):
+            filepath = filepaths[filepath_choice]
+            break
+        else:
+            raise ValueError('')
+    except (ValueError, IndexError) as err:
+        filepath_choice = input('Choice must be number between 1 and {}, choose again: '.format(len(filepaths)))
+
 # PROCAR = "./data/CdTe/HSE06_SoC/PROCAR"
 # PROCAR = "./data/CdTe/HSE06/PROCAR"
 # PROCAR = "./data/GaAs/HSE06/PROCAR"
 # PROCAR = "./data/GaAs/LDA/PROCAR"
 # PROCAR = "./data/MAPI/HSE06/PROCAR"
-PROCAR = "PROCAR"
+#PROCAR = "PROCAR"
 
 #data = inputs.Data("./data/CdTe/HSE06_SoC/OUTCAR", PROCAR, ignore=0)
 #data = inputs.Data("./data/CdTe/HSE06/OUTCAR",, ignore=0)
 #data = inputs.Data("./data/GaAs/HSE06/OUTCAR", PROCAR, ignore=0)
 #data = inputs.Data("./data/GaAs/LDA/OUTCAR",PROCAR, ignore=0)
 #data = inputs.Data("./data/MAPI/HSE06/OUTCAR", PROCAR, ignore=0)
-data = inputs.Data("OUTCAR", PROCAR, ignore=ignored_kpoints)
+data = inputs.Data(filepath + "OUTCAR", filepath + "PROCAR", ignore=ignored_kpoints)
 
 ans = extrema.find_extrema_indices(data, settings)
 # print(ans)
@@ -110,4 +134,4 @@ with open('./results/summary_' + semicond + '.txt', 'a') as f:
     sys.stdout = original_stdout # Reset the standard output to its original value
 
 # make a copy of the PROCAR File used
-copyfile(PROCAR, './results/PROCAR')
+copyfile(filepath + 'PROCAR', './results/PROCAR')
