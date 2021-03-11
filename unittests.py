@@ -25,18 +25,91 @@ class TestOcto2Vasp(unittest.TestCase):
         fullpaths = [file for file in glob('./**/bandstructure*', recursive=True)]
         filepaths = [os.path.dirname(path) + '/' for path in fullpaths]
         for idx, path in enumerate(fullpaths):
-            # print('[{}] {}\n'.format(idx + 1, path))
             if ('.\\ut_data\\pos_kpoints\\bandstructure' or './ut_data/pos_kpoints/bandstructure') in path:
                 selection = idx + 1
 
         oldstdin = sys.stdin
         sys.stdin = StringIO(str(selection))
         o2v = octo2vasp.Octo2Vasp(name='test_out', energy_scale=1.0)
-        # add automatic input of anything that wont cause an error then overwrite
-        # the filepath next line
 
+        os.mkdir('./gen_vasp/test_out')
+        o2v.gen_procar()
 
-        # o2v.filepath = './ut_data'
+        # the number of lines that should match the kpoint regular expression
+        num_matched = 4
+        pattern = re.compile('k-point\s+(\d+)\s*:\s+([- ][01].\d{8})([- ][01].\d{8})([- ][01].\d{8})\s+weight = ([01].\d+)')
+
+        matched = []
+        f = open('./gen_vasp/test_out/PROCAR', 'r')
+        for i, line in enumerate(f):
+            for match in re.finditer(pattern, line):
+                # print('Found on line %s: %s' % (i+1, match.group()))
+                matched.append(match.group)
+
+        # close the filehandle
+        f.close()
+        os.remove('./gen_vasp/test_out/PROCAR')
+        os.rmdir('./gen_vasp/test_out')
+
+        self.assertEqual(len(matched), num_matched)
+
+    def test_gen_procar_neg_kpoints(self):
+        '''
+        Test Case 2: negative kpoints
+        All kpoints must match this regular expression
+        k-point\s+(\d+)\s*:\s+([- ][01].\d{8})([- ][01].\d{8})([- ][01].\d{8})\s+weight = ([01].\d+)
+        '''
+
+        fullpaths = [file for file in glob('./**/bandstructure*', recursive=True)]
+        filepaths = [os.path.dirname(path) + '/' for path in fullpaths]
+        for idx, path in enumerate(fullpaths):
+            if ('.\\ut_data\\neg_kpoints\\bandstructure' or './ut_data/neg_kpoints/bandstructure') in path:
+                selection = idx + 1
+
+        oldstdin = sys.stdin
+        sys.stdin = StringIO(str(selection))
+        o2v = octo2vasp.Octo2Vasp(name='test_out', energy_scale=1.0)
+
+        o2v.filepath = './ut_data'
+        os.mkdir('./gen_vasp/test_out')
+        o2v.gen_procar()
+
+        # the number of lines that should match the kpoint regular expression
+        num_matched = 4
+        pattern = re.compile('k-point\s+(\d+)\s*:\s+([- ][01].\d{8})([- ][01].\d{8})([- ][01].\d{8})\s+weight = ([01].\d+)')
+
+        matched = []
+        f = open('./gen_vasp/test_out/PROCAR', 'r')
+        for i, line in enumerate(f):
+            for match in re.finditer(pattern, line):
+                # print('Found on line %s: %s' % (i+1, match.group()))
+                matched.append(match.group)
+
+        # close the filehandle
+        f.close()
+        os.remove('./gen_vasp/test_out/PROCAR')
+        os.rmdir('./gen_vasp/test_out')
+
+        self.assertEqual(len(matched), num_matched)
+
+    def test_gen_procar_mixed_sign_kpoints(self):
+        '''
+        Test Case 3: mixed sign kpoints
+        All kpoints must match this regular expression
+        k-point\s+(\d+)\s*:\s+([- ][01].\d{8})([- ][01].\d{8})([- ][01].\d{8})\s+weight = ([01].\d+)
+        '''
+
+        fullpaths = [file for file in glob('./**/bandstructure*', recursive=True)]
+        filepaths = [os.path.dirname(path) + '/' for path in fullpaths]
+        for idx, path in enumerate(fullpaths):
+            if ('.\\ut_data\\mixed_sign_kpoints\\bandstructure' or './ut_data/mixed_sign_kpoints/bandstructure') in path:
+                selection = idx + 1
+
+        oldstdin = sys.stdin
+        sys.stdin = StringIO(str(selection))
+        o2v = octo2vasp.Octo2Vasp(name='test_out', energy_scale=1.0)
+
+        o2v.filepath = './ut_data'
         os.mkdir('./gen_vasp/test_out')
         o2v.gen_procar()
 
@@ -58,37 +131,6 @@ class TestOcto2Vasp(unittest.TestCase):
 
         self.assertEqual(len(matched), num_matched)
 
-    # def test_gen_procar_neg_kpoints(self):
-    #     '''
-    #     Test Case 2: negative kpoints
-    #     All kpoints must match this regular expression
-    #     k-point\s+(\d+)\s*:\s+([- ][01].\d{8})([- ][01].\d{8})([- ][01].\d{8})\s+weight = ([01].\d+)
-    #     '''
-    #     o2v = octo2vasp.Octo2Vasp(name='test_out', energy_scale=1.0)
-    #     # add automatic input of anything that wont cause an error then overwrite
-    #     # the filepath next line
-    #
-    #     o2v.filepath = './ut_data'
-    #     os.mkdir('./gen_vasp/test_out')
-    #     o2v.gen_procar()
-    #
-    #     # the number of lines that should match the kpoint regular expression
-    #     num_matched = 4
-    #     pattern = re.compile('k-point\s+(\d+)\s*:\s+([- ][01].\d{8})([- ][01].\d{8})([- ][01].\d{8})\s+weight = ([01].\d+)')
-    #
-    #     matched = []
-    #     f = open('./gen_vasp/test_out/PROCAR', 'r')
-    #     for i, line in enumerate(f):
-    #         for match in re.finditer(pattern, line):
-    #             print('Found on line %s: %s' % (i+1, match.group()))
-    #             matched.append(match.group)
-    #
-    #     # close the filehandle
-    #     f.close()
-    #     os.remove('./gen_vasp/test_out/PROCAR')
-    #     os.rmdir('./gen_vasp/test_out')
-    #
-    #     self.assertEqual(len(matched), num_matched)
 
 class TestBandstructure(unittest.TestCase):
     ''' '''
