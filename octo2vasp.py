@@ -12,7 +12,7 @@ results -> kpoint weight
 bandstructure -> number of kpoints, num bands, energies, occupancies (calculated)
 conduction band, valence band, conduction band min, and valence band max
 
-Example use:           (required arg)     (optional arg) 
+Example use:           (required arg)     (optional arg)
 python octo2vasp.py --name Si_03082021 --energy_scale 1.0
 
 Outputs:
@@ -35,12 +35,13 @@ import bandstructure
 
 class Octo2Vasp():
 
-    def __init__(self, name, energy_scale):
+    def __init__(self, name, energy_scale, valence_band_index):
         self.name = name
         print("Semiconductor name: " + name)
         print("Energy Scale: " + str(energy_scale))
+        print("Valence Band Index: " + str(valence_band_index))
         self.filepath = self.user_prompt()
-        self.bs = bandstructure.Bandstructure(self.name, self.filepath, energy_scale)
+        self.bs = bandstructure.Bandstructure(self.name, self.filepath, energy_scale, valence_band_index)
         self.info = info.Info(self.filepath)
         self.results = results.Results(self.filepath, self.bs.num_kpoints)
 
@@ -160,6 +161,7 @@ def main():
     # arg default values, raise exception on required args
     name = ''
     energy_scale = 1.0
+    valence_band_index = None
 
     if not len(args):
         raise ValueError('Must include a name using option -n or --name')
@@ -184,13 +186,21 @@ def main():
             except ValueError as err:
                 raise ValueError('Energy scale must be a int or float, default is 1.0')
 
+        elif curr_arg in ('-v', '--valence_band_index'):
+            try:
+                valence_band_index = int(curr_value)
+            except ValueError as err:
+                raise ValueError('Valence band index must be an integer')
+
     if name == '':
         raise ValueError('Must include a name using option -n or --name')
 
-    octo2vasp = Octo2Vasp(name=name, energy_scale=energy_scale)
+    octo2vasp = Octo2Vasp(name=name, energy_scale=energy_scale,
+                          valence_band_index=valence_band_index)
     octo2vasp.gen_outcar()
     octo2vasp.gen_procar()
-    octo2vasp.bs.simple_plot()
+    octo2vasp.bs.plot_bands()
+    #octo2vasp.bs.simple_plot()
 
 
 if __name__ == '__main__':

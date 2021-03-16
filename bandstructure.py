@@ -10,6 +10,7 @@ bandstructure -> number of kpoints, number of bands, CBM, VBM, condcution band,
 
 import numpy as np
 import matplotlib.pyplot as plt
+from glob import glob
 
 class Bandstructure():
     '''
@@ -23,13 +24,16 @@ class Bandstructure():
       _efermi_path (string): filepath with the addition of the total-dos-efermi.dat file
       efermi (float): fermi energy
       energy_scale (float): how much to scale down the bandstructure energies
+      filepath (string): filepath to the bandstructure and total-dos-efermi.dat files
       kpoints (zipped numpy arrays): (kx array, ky array, kz array) shapes (num_kpoints, )
       num_bands (int): number of bands from the bandstructure file
       num_kpoints (int): number of kpoints from the bandstructure file
       energies (numpy array): with shape (num kpoints, num bands)
       occupancies (numpy array): with shape (num kpoints, num bands)
+      valence_band_index (int): The column number of where the valence band exists in the
+                                bandstructure file (equal to number of dos files)
     '''
-    def __init__(self, name, filepath, energy_scale):
+    def __init__(self, name, filepath, energy_scale, valence_band_index):
         '''
         Args:
           name (string): name of the semiconductor used for saving output files
@@ -37,9 +41,11 @@ class Bandstructure():
           energy_scale (float): how much to scale down the bandstructure energies
         '''
         self._name = name
-        self._bandstructure_path = filepath + 'bandstructure'
+        self.filepath = filepath
+        self.valence_band_index = valence_band_index
+        self._bandstructure_path = self.filepath + 'bandstructure'
         self._bandstructure = np.array(np.loadtxt(self._bandstructure_path))
-        self._efermi_path = filepath + 'total-dos-efermi.dat'
+        self._efermi_path = self.filepath + 'total-dos-efermi.dat'
         self.efermi = np.loadtxt(self._efermi_path)[0,0]
         self.energy_scale = energy_scale
         self.kpoints = zip(self._bandstructure[:,1], self._bandstructure[:,2],
@@ -65,7 +71,7 @@ class Bandstructure():
         energies = self._bandstructure[:, 4:]
         energies = energies - self.efermi
         self.energies = energies / self.energy_scale
-        np.savetxt('energies_efermi', energies)
+
         # create a numpy array with same shape as energies
         # fill the first bands up to the valence band with an occupancy of 2.0
         self.occupancies = np.zeros(energies.shape)
@@ -168,37 +174,37 @@ class Bandstructure():
           vb_max (float): The largest value in the valence_band numpy array
         '''
 
-        valence_band = occupied_bands[-1, :]
-        vb_max = valence_band.max()
+        try:
+            valence_band = occupied_bands[-1, :]
+            vb_max = valence_band.max()
+        except IndexError as err:
+            raise ValueError('Error determining valence band, try manually entering with -v/--valence_band_index')
+
         return(valence_band, vb_max)
 
     def _split_bands(self):
         '''
         Takes the energies numpy array shape (num_bands, num_kpoints) and
-        creates two numpy arrays, occupied and unoccupied bands
+        creates two numpy arrays, occupied and unoccupied bands. Takes user input
+        of valence_band_index or the number of dos files found in the folder to
+        separate the occupied and unoccupied bands
 
         Returns:
           occupied_bands (numpy array): shape (num_bands, num_kpoints)
           unoccupied_bands (numpy array): shape (num_bands, num_kpoints)
         '''
+        if self.valence_band_index is None:
+            match = self.filepath + 'dos-*.dat'
+            paths = [file for file in glob(match)]
 
-        # transpose to shape (num_kpoints, num_bands) before separating into
-        # occupied and unoccupied bands of shape (num_energies, )
-        occupied_bands = self.energies.T[self.energies.T < 0.0]
-        unoccupied_bands = self.energies.T[self.energies.T >= 0.0]
+            print('Num occupied bands' + str(len(paths)))
+            self.valence_band_index = len(paths)
 
-        # the number of occupied/unoccupied bands can be found from the shape
-        # of those numpy arrays
-        num_occupied_bands = int(occupied_bands.shape[0] / self.num_kpoints)
-        num_unoccupied_bands = int(unoccupied_bands.shape[0] / self.num_kpoints)
-        print(num_occupied_bands)
-        print(num_unoccupied_bands)
-        # reshape so its not just a single dimensional numpy array, and it has
-        # a row for each band
-        occupied_bands = np.reshape(occupied_bands,
-                                   (num_occupied_bands, self.num_kpoints))
+        occupied_bands = self.energies[:,:self.valence_band_index]
+        unoccupied_bands = self.energies[:,self.valence_band_index + 1:]
 
-        unoccupied_bands = np.reshape(unoccupied_bands,
-                                     (num_unoccupied_bands, self.num_kpoints))
+        # change to shape (num_bands, num_kpoints)
+        occupied_bands = occupied_bands.T
+        unoccupied_bands = unoccupied_bands.T
 
         return(occupied_bands, unoccupied_bands)

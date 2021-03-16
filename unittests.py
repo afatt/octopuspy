@@ -1,6 +1,3 @@
-# procar testing test negative and positive kpoint values for x, y, and z
-# test against the regular expression
-
 import os
 import re
 import sys
@@ -30,7 +27,7 @@ class TestOcto2Vasp(unittest.TestCase):
 
         oldstdin = sys.stdin
         sys.stdin = StringIO(str(selection))
-        o2v = octo2vasp.Octo2Vasp(name='test_out', energy_scale=1.0)
+        o2v = octo2vasp.Octo2Vasp(name='test_out', energy_scale=1.0, valence_band_index=4)
 
         os.mkdir('./gen_vasp/test_out')
         o2v.gen_procar()
@@ -68,7 +65,7 @@ class TestOcto2Vasp(unittest.TestCase):
 
         oldstdin = sys.stdin
         sys.stdin = StringIO(str(selection))
-        o2v = octo2vasp.Octo2Vasp(name='test_out', energy_scale=1.0)
+        o2v = octo2vasp.Octo2Vasp(name='test_out', energy_scale=1.0, valence_band_index=4)
 
         o2v.filepath = './ut_data'
         os.mkdir('./gen_vasp/test_out')
@@ -107,7 +104,7 @@ class TestOcto2Vasp(unittest.TestCase):
 
         oldstdin = sys.stdin
         sys.stdin = StringIO(str(selection))
-        o2v = octo2vasp.Octo2Vasp(name='test_out', energy_scale=1.0)
+        o2v = octo2vasp.Octo2Vasp(name='test_out', energy_scale=1.0, valence_band_index=4)
 
         o2v.filepath = './ut_data'
         os.mkdir('./gen_vasp/test_out')
@@ -138,21 +135,21 @@ class TestBandstructure(unittest.TestCase):
     def test_name(self):
         '''Make sure the name attibute is properly set'''
 
-        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0)
+        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0, 4)
         name = 'Si_03082021'
         self.assertEqual(bs._name, name)
 
     def test_filepath(self):
         '''Make sure the filepath attibute is properly set'''
 
-        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0)
+        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0, 4)
         filepath = './ut_data/bandstructure'
         self.assertEqual(bs._bandstructure_path, filepath)
 
     def test_bandstructure(self):
         '''Make sure the bandstructure attibute is properly set'''
 
-        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0)
+        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0, 4)
         test_bs = np.array([[0.00000000, 0.00000000, 0.00000000, 0.00000000, -7.74445402, 4.07037476, 4.07037593, 4.07038233, 6.61983340],
                             [0.01373858, 0.04166667, 0.00000000, 0.04166667, -7.71460976, 3.86361199, 3.94921615, 3.94921884, 6.54685076],
                             [0.02747716, 0.08333333, 0.00000000, 0.08333333, -7.62519023, 3.35857616, 3.65323831, 3.65323944, 6.34969314],
@@ -163,7 +160,7 @@ class TestBandstructure(unittest.TestCase):
     def test_efermi_path(self):
         '''Tests the setting of the efermi filepath'''
 
-        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0)
+        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0, 4)
         filepath = './ut_data/total-dos-efermi.dat'
 
         self.assertEqual(bs._efermi_path, filepath)
@@ -171,7 +168,7 @@ class TestBandstructure(unittest.TestCase):
     def test_kpoints(self):
         '''Tests the setting of the kpoints'''
 
-        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0)
+        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0, 4)
         test_kx = np.array([0.00000000, 0.04166667, 0.08333333, 0.12500000])
         test_ky = np.array([0.00000000, 0.00000000, 0.00000000, 0.00000000])
         test_kz = np.array([0.00000000, 0.04166667, 0.08333333, 0.12500000])
@@ -185,7 +182,7 @@ class TestBandstructure(unittest.TestCase):
     def test_num_bands(self):
         '''Tests the setting of the number of bands attribute'''
 
-        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0)
+        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0, 4)
         num_bands = 5
 
         self.assertEqual(bs.num_bands, num_bands)
@@ -193,7 +190,7 @@ class TestBandstructure(unittest.TestCase):
     def test_num_kpoints(self):
         '''Tests the setting of the number of k-points attribute'''
 
-        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0)
+        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0, 4)
         num_kpoints = 4
 
         self.assertEqual(bs.num_kpoints, num_kpoints)
@@ -201,14 +198,14 @@ class TestBandstructure(unittest.TestCase):
     def test_efermi(self):
         '''Tests the loading of the fermi energy'''
 
-        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0)
+        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0, 4)
         efermi = 4.070390
         self.assertEqual(bs.efermi, efermi)
 
     def test_energies(self):
         '''Tests the loading of the energies from the bandstructure'''
 
-        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0)
+        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0, 4)
 
         energies = np.array([[-7.74445402, 4.07037476, 4.07037593, 4.07038233, 6.61983340],
                              [-7.71460976, 3.86361199, 3.94921615, 3.94921884, 6.54685076],
@@ -223,7 +220,7 @@ class TestBandstructure(unittest.TestCase):
     def test_occupancies(self):
         '''Tests the setting of the occupancies'''
 
-        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0)
+        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0, 4)
         occupancies =  np.array([[2.0, 2.0, 2.0, 2.0, 0.0],
                                 [2.0, 2.0, 2.0, 2.0, 0.0],
                                 [2.0, 2.0, 2.0, 2.0, 0.0],
@@ -234,7 +231,7 @@ class TestBandstructure(unittest.TestCase):
     def test_occupied_bands(self):
         '''Tests the setting of the occupied bands from the _split_bands method'''
 
-        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0)
+        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0, 4)
 
         occupied_bands = np.array([[-7.74445402, -7.71460976, -7.62519023, -7.47653932],
                                    [4.07037476, 3.86361199, 3.35857616, 2.71474520],
@@ -249,7 +246,7 @@ class TestBandstructure(unittest.TestCase):
     def test_unoccupied_bands(self):
         '''Tests the setting of the unoccupied bands from the _split_bands method'''
 
-        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0)
+        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0, 4)
 
         unoccupied_bands = np.array([[6.61983340, 6.54685076, 6.34969314, 6.07653663]])
         unoccupied_bands = unoccupied_bands - 4.070390
@@ -260,7 +257,7 @@ class TestBandstructure(unittest.TestCase):
     def test_conduction_band(self):
         '''Tests the setting of the conduction band'''
 
-        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0)
+        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0, 4)
 
         # there is only one unoccupied band which also makes it the valence band
         unoccupied_bands = np.array([[6.61983340, 6.54685076, 6.34969314, 6.07653663]])
@@ -273,7 +270,7 @@ class TestBandstructure(unittest.TestCase):
     def test_valence_band(self):
         '''Tests the setting of the valence band'''
 
-        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0)
+        bs = bandstructure.Bandstructure('Si_03082021', './ut_data/', 1.0, 4)
 
         occupied_bands = np.array([[-7.74445402, -7.71460976, -7.62519023, -7.47653932],
                                    [4.07037476, 3.86361199, 3.35857616, 2.71474520],
