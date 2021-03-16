@@ -29,7 +29,11 @@ class TestOcto2Vasp(unittest.TestCase):
         sys.stdin = StringIO(str(selection))
         o2v = octo2vasp.Octo2Vasp(name='test_out', energy_scale=1.0, valence_band_index=4)
 
-        os.mkdir('./gen_vasp/test_out')
+        try:
+            os.mkdir('./gen_vasp/test_out')
+        except FileExistsError as err:
+            print('./gen_vasp/test_out already exists')
+
         o2v.gen_procar()
 
         # the number of lines that should match the kpoint regular expression
@@ -68,7 +72,10 @@ class TestOcto2Vasp(unittest.TestCase):
         o2v = octo2vasp.Octo2Vasp(name='test_out', energy_scale=1.0, valence_band_index=4)
 
         o2v.filepath = './ut_data'
-        os.mkdir('./gen_vasp/test_out')
+        try:
+            os.mkdir('./gen_vasp/test_out')
+        except FileExistsError as err:
+            print('./gen_vasp/test_out already exists')
         o2v.gen_procar()
 
         # the number of lines that should match the kpoint regular expression
@@ -107,7 +114,10 @@ class TestOcto2Vasp(unittest.TestCase):
         o2v = octo2vasp.Octo2Vasp(name='test_out', energy_scale=1.0, valence_band_index=4)
 
         o2v.filepath = './ut_data'
-        os.mkdir('./gen_vasp/test_out')
+        try:
+            os.mkdir('./gen_vasp/test_out')
+        except FileExistsError as err:
+            print('./gen_vasp/test_out already exists')
         o2v.gen_procar()
 
         # the number of lines that should match the kpoint regular expression
@@ -226,6 +236,7 @@ class TestBandstructure(unittest.TestCase):
                                 [2.0, 2.0, 2.0, 2.0, 0.0],
                                 [2.0, 2.0, 2.0, 2.0, 0.0]])
         bs_e, bs_o = bs.get_eigenvalues()
+        print(bs_o)
         self.assertTrue(np.allclose(bs_o, occupancies))
 
     def test_occupied_bands(self):

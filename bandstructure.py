@@ -72,10 +72,14 @@ class Bandstructure():
         energies = energies - self.efermi
         self.energies = energies / self.energy_scale
 
+        # unocc_bands (numpy array): shape (num_bands, num_kpoints)
+        occ_bands, unocc_bands = self._split_bands()
+
         # create a numpy array with same shape as energies
-        # fill the first bands up to the valence band with an occupancy of 2.0
+        # fill the occupied bands with occupancy of 2.0
         self.occupancies = np.zeros(energies.shape)
-        self.occupancies[energies < 0.0] = 2.0
+        mask = np.isin(self.energies, occ_bands.T)
+        self.occupancies[mask] = 2.0
 
         return(self.energies, self.occupancies)
 
