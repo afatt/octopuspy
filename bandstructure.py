@@ -9,6 +9,7 @@ bandstructure -> number of kpoints, number of bands, CBM, VBM, condcution band,
 '''
 
 import numpy as np
+import numpy.ma as ma
 import matplotlib.pyplot as plt
 from glob import glob
 
@@ -99,8 +100,18 @@ class Bandstructure():
         occupied_bands, unoccupied_bands = self._split_bands()
         valence_band, vb_max = self._get_valence_band(occupied_bands)
         conduction_band, cb_min= self._get_conduction_band(unoccupied_bands)
+        # print(conduction_band)
         vb_max_index = valence_band.argmax()
         cb_min_index = conduction_band.argmin()
+        print(vb_max)
+        print(cb_min)
+        energy_occupied = ma.masked_where(self.occupancies < 0.5, self.energies)
+        print(np.amax(energy_occupied))
+
+        energy_unoccupied = ma.masked_where(self.occupancies > 0.5, self.energies)
+        print(np.amin(energy_unoccupied))
+
+
 
         fig = plt.figure()
         ax = fig.add_axes([0.1,0.1,0.8,0.8])
@@ -121,9 +132,9 @@ class Bandstructure():
         ax.plot(x_data[cb_min_index], cb_min, '*')
         ax.set_ylabel('E-Ef')
         ax.set_title('Bulk Bandstructure')
-        ax.set_xticks([0.00,0.118,0.255,0.391,0.726,1.000])
-        ax.set_xticklabels(['K','Gamma','X','W','K','Gamma','L','U','W','L','K'])
-        ax.set_xticks([0.00,0.148,0.289,0.359,0.408,0.557,0.679,0.765,0.814,0.914,1.000])
+        # ax.set_xticklabels(['K','Gamma','X','W','K','Gamma','L','U','W','L','K'])
+        # ax.set_xticklabels(['K','Gamma','X','W'])
+        # ax.set_xticks([0.00,0.148,0.289,0.359])
         ax.tick_params(axis='both',labelsize=12)
 
         plt.axhline(y=0)
@@ -162,7 +173,7 @@ class Bandstructure():
           conduction_band (numpy array): shape (num_kpoints, )
           cb_min (float): The smallest value in the conduction_band numpy array
         '''
-
+        print(unoccupied_bands)
         conduction_band = unoccupied_bands[0, :]
         cb_min = conduction_band.min()
         return(conduction_band, cb_min)
@@ -177,7 +188,7 @@ class Bandstructure():
           valence_band (numpy array): shape (num_kpoints, )
           vb_max (float): The largest value in the valence_band numpy array
         '''
-
+        print(occupied_bands)
         try:
             valence_band = occupied_bands[-1, :]
             vb_max = valence_band.max()
@@ -200,12 +211,11 @@ class Bandstructure():
         if self.valence_band_index is None:
             match = self.filepath + 'dos-*.dat'
             paths = [file for file in glob(match)]
-
-            print('Num occupied bands' + str(len(paths)))
             self.valence_band_index = len(paths)
 
         occupied_bands = self.energies[:,:self.valence_band_index]
-        unoccupied_bands = self.energies[:,self.valence_band_index + 1:]
+        # unoccupied_bands = self.energies[:,self.valence_band_index + 1:]
+        unoccupied_bands = self.energies[:,self.valence_band_index:]
 
         # change to shape (num_bands, num_kpoints)
         occupied_bands = occupied_bands.T
