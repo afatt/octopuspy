@@ -200,7 +200,7 @@ def main():
     octo2vasp.gen_outcar()
     octo2vasp.gen_procar()
     octo2vasp.bs.plot_bands()
-    #octo2vasp.bs.simple_plot()
+    # octo2vasp.bs.simple_plot()
 
 
 if __name__ == '__main__':

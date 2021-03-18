@@ -100,14 +100,12 @@ class Bandstructure():
         occupied_bands, unoccupied_bands = self._split_bands()
         valence_band, vb_max = self._get_valence_band(occupied_bands)
         conduction_band, cb_min= self._get_conduction_band(unoccupied_bands)
-        # print(conduction_band)
         vb_max_index = valence_band.argmax()
         cb_min_index = conduction_band.argmin()
         print(vb_max)
         print(cb_min)
         energy_occupied = ma.masked_where(self.occupancies < 0.5, self.energies)
         print(np.amax(energy_occupied))
-
         energy_unoccupied = ma.masked_where(self.occupancies > 0.5, self.energies)
         print(np.amin(energy_unoccupied))
 
@@ -132,7 +130,7 @@ class Bandstructure():
         ax.plot(x_data[cb_min_index], cb_min, '*')
         ax.set_ylabel('E-Ef')
         ax.set_title('Bulk Bandstructure')
-        # ax.set_xticklabels(['K','Gamma','X','W','K','Gamma','L','U','W','L','K'])
+        ax.set_xticklabels(['K','Gamma','X','W','K','Gamma','L','U','W','L','K'])
         # ax.set_xticklabels(['K','Gamma','X','W'])
         # ax.set_xticks([0.00,0.148,0.289,0.359])
         ax.tick_params(axis='both',labelsize=12)
@@ -214,7 +212,6 @@ class Bandstructure():
             self.valence_band_index = len(paths)
 
         occupied_bands = self.energies[:,:self.valence_band_index]
-        # unoccupied_bands = self.energies[:,self.valence_band_index + 1:]
         unoccupied_bands = self.energies[:,self.valence_band_index:]
 
         # change to shape (num_bands, num_kpoints)
