@@ -14,7 +14,7 @@ REQUIRES = [
 ]
 
 setup(
-    name='octopus-py',
+    name='octopuspy',
     author='Austin Fatt',
     author_email='austin.d.fatt@navy.mil',
     url='',
@@ -23,7 +23,7 @@ setup(
     classifiers=[
         'Programming Language :: Python :: 3.7'
     ],
-    keywords='octopus-py',
+    keywords='octopuspy',
     packages=find_packages(),
     install_requires=REQUIRES
 )

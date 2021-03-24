@@ -102,14 +102,6 @@ class Bandstructure():
         conduction_band, cb_min= self._get_conduction_band(unoccupied_bands)
         vb_max_index = valence_band.argmax()
         cb_min_index = conduction_band.argmin()
-        print(vb_max)
-        print(cb_min)
-        energy_occupied = ma.masked_where(self.occupancies < 0.5, self.energies)
-        print(np.amax(energy_occupied))
-        energy_unoccupied = ma.masked_where(self.occupancies > 0.5, self.energies)
-        print(np.amin(energy_unoccupied))
-
-
 
         fig = plt.figure()
         ax = fig.add_axes([0.1,0.1,0.8,0.8])
@@ -171,7 +163,7 @@ class Bandstructure():
           conduction_band (numpy array): shape (num_kpoints, )
           cb_min (float): The smallest value in the conduction_band numpy array
         '''
-        print(unoccupied_bands)
+
         conduction_band = unoccupied_bands[0, :]
         cb_min = conduction_band.min()
         return(conduction_band, cb_min)
@@ -186,7 +178,7 @@ class Bandstructure():
           valence_band (numpy array): shape (num_kpoints, )
           vb_max (float): The largest value in the valence_band numpy array
         '''
-        print(occupied_bands)
+
         try:
             valence_band = occupied_bands[-1, :]
             vb_max = valence_band.max()
