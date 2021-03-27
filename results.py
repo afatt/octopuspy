@@ -4,7 +4,7 @@ available to use
 
 Information contained in results.out file
 -------------------------------------------
-results -> kpoint wieght
+results -> kpoint weight
 '''
 
 import numpy as np
@@ -43,12 +43,16 @@ class Results():
         # find the index of the match and get numkpoints of lines results
         match = ' index |    weight    |             coordinates              |'
         start = self._results.index(match)
-        weights_table = self._results[start: start + self._num_kpoints + 1][1:]
+
+        # start at the second line not including the matched text
+        weights_table = self._results[start: start + 2][1:]
 
         # get the second column of the table and load into numpy array
-        weights_list = [row.split() for row in weights_table]
-        weights_full = np.array(weights_list)
-        weights = weights_full[:,2]
+        line = [row.split() for row in weights_table]
+        weight = line[0][2]
+
+        # create a 1 dimensional numpy array with type of float
+        weights = np.full((self._num_kpoints, ), weight)
         self.weights = weights.astype('float64')
 
         return(self.weights)
