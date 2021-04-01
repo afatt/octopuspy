@@ -26,6 +26,7 @@ import unicodedata
 import numpy as np
 import numpy.ma as ma
 from glob import glob
+from math import pi
 
 # local modules
 import info
@@ -49,25 +50,34 @@ class Octo2Vasp():
     def gen_outcar(self):
         '''
         Generates the VASP OUTCAR file containing the direct lattice vector and
-        reciprocal lattic vector
-
-        Args:
-          zipped_vectors (zipped vectors): lattice_vector: list of length 3
-                                           reciprocal_lattice_vector: list of length 3
+        reciprocal lattic vector. Divides the reciprocal lattice vector by 2*pi
+        to match VASP OUTCAR.
         '''
 
         zipped_vectors = self.info.get_lattice_vectors()
 
         f = open('./gen_vasp/' + self.name +  '/OUTCAR', 'w')
-        direct_header = '     direct lattice vectors'
-        f.write(direct_header.ljust(46) + 'reciprocal lattice vectors\n')
-        for vec, recp_vect in zipped_vectors:
-            f.write(vec + ' ' + recp_vect + '\n')
+        direct_header = 'direct lattice vectors'
+        f.write('      ')
+        f.write(direct_header.ljust(39) + 'reciprocal lattice vectors\n')
+        for vect, recp_vect in zipped_vectors:
+            f.write('   ')
+            vect = [float(v) for v in vect.split()]
+            for v in vect:
+                f.write('{:11.9f}'.format(v).rjust(13))
+            f.write('   ')
+
+            # VASP divides the reciprocal lattice by 2*pi
+            recp_vect = [float(v)/(2*pi) for v in recp_vect.split()]
+            for v in recp_vect:
+                f.write('{:11.9f}'.format(v).rjust(13))
+
+            f.write('\n')
         f.close()
 
     def gen_procar(self):
         '''
-
+        Generates the VASP PROCAR file
         '''
 
         kpoints = self.bs.kpoints
