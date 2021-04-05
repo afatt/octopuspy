@@ -39,4 +39,4 @@ The `octopuspy` package includes the script `octo2vasp.py` for converting the
 
 Unittests are included with this package and can be run using:
 
-  python unittests.py
+  python -m unittest discover

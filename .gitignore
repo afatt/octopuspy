@@ -2,4 +2,6 @@ __pycache__
 octopuspy-env/
 test_data/
 gen_vasp/
+dist/
+octopuspy.egg-info/
 architecture_plan.txt

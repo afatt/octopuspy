@@ -29,9 +29,9 @@ from glob import glob
 from math import pi
 
 # local modules
-import info
-import results
-import bandstructure
+from octopuspy.info import Info
+from octopuspy.results import Results
+from octopuspy.bandstructure import Bandstructure
 
 
 class Octo2Vasp():
@@ -42,9 +42,9 @@ class Octo2Vasp():
         print("Energy Scale: " + str(energy_scale))
         print("Valence Band Index: " + str(valence_band_index))
         self.filepath = self.user_prompt()
-        self.bs = bandstructure.Bandstructure(self.name, self.filepath, energy_scale, valence_band_index)
-        self.info = info.Info(self.filepath)
-        self.results = results.Results(self.filepath, self.bs.num_kpoints)
+        self.bs = Bandstructure(self.name, self.filepath, energy_scale, valence_band_index)
+        self.info = Info(self.filepath)
+        self.results = Results(self.filepath, self.bs.num_kpoints)
 
 
     def gen_outcar(self):

@@ -4,6 +4,7 @@ from setuptools import setup, find_packages
 __version__ = '1.0.0'
 
 REQUIRES = [
+    'coverage==4.3.4'
     'cycler==0.10.0',
     'kiwisolver==1.3.1',
     'matplotlib==3.1.0',
