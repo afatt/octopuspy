@@ -189,7 +189,7 @@ class TestBandstructure(unittest.TestCase):
         '''Make sure the filepath attibute is properly set'''
 
         bs = Bandstructure('Si_03082021', test_path, 1.0, 4)
-        filepath = os.path.join( os.path.dirname( __file__ ), test_data_dir ) + '\\bandstructure'
+        filepath = test_path + 'bandstructure'
         self.assertEqual(bs._bandstructure_path, filepath)
 
     def test_bandstructure(self):
@@ -207,7 +207,7 @@ class TestBandstructure(unittest.TestCase):
         '''Tests the setting of the efermi filepath'''
 
         bs = Bandstructure('Si_03082021', test_path, 1.0, 4)
-        filepath = os.path.join( os.path.dirname( __file__ ), test_data_dir ) + '\\total-dos-efermi.dat'
+        filepath = test_path + 'total-dos-efermi.dat'
 
         self.assertEqual(bs._efermi_path, filepath)
 
