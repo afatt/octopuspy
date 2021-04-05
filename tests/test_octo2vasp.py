@@ -10,7 +10,10 @@ from octopuspy.octo2vasp import Octo2Vasp
 from octopuspy.bandstructure import Bandstructure
 
 test_data_dir = 'test_data'
-test_path = os.path.join( os.path.dirname( __file__ ), test_data_dir ) + '\\'
+if 'win' in sys.platform:
+    test_path = os.path.join( os.path.dirname( __file__ ), test_data_dir ) + '\\'
+else:
+    test_path = os.path.join( os.path.dirname( __file__ ), test_data_dir ) + '/'
 
 class TestOcto2Vasp(unittest.TestCase):
     ''' '''
