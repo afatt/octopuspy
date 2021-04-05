@@ -9,12 +9,12 @@ intent of using with the [effmass](https://github.com/lucydot/effmass) package.
 
 `octopuspy` can be installed from PyPI:
 
-  pip install octopuspy
+    pip install octopuspy
 
 or if the package exists locally:
 
-  cd octopuspy
-  python setup.py install
+    cd octopuspy
+    python setup.py install
 
 ## How To Use
 
@@ -23,15 +23,15 @@ Required Files: bandstructure, info, results.out, and dos-xxx.dat files (if thes
 **bandstructure**
 file includes: number of kpoints, number of bands, energies, and occupancies (calculated). The Bandstructure class uses the dos-xxx.dat files to determine the number of occupied bands, if none are found user will be prompted to use the `valence_band_index` on the command line to set number of occupied bands:
 
-  band_data = bandstructure.Bandstructure(name, bandstructure_filepath, energy_scale=1.0, valence_band_index=10)
+    band_data = bandstructure.Bandstructure(name, bandstructure_filepath, energy_scale=1.0, valence_band_index=10)
 
 **info** file includes: direct lattice vector, reciprocal lattice vector, and number of ions:
 
-  info_data = info.Info(info_filepath)
+    info_data = info.Info(info_filepath)
 
 **results.out** file includes: kpoint weights
 
-  results.out = results.Results(results_filepath, num_kpoints)
+    results.out = results.Results(results_filepath, num_kpoints)
 
 The `octopuspy` package includes the script `octo2vasp.py` for converting the  
 
@@ -41,4 +41,4 @@ The `octopuspy` package includes the script `octo2vasp.py` for converting the
 
 Unittests are included with this package and can be run using:
 
-  python -m unittest discover
+    python -m unittest discover
