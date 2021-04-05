@@ -1,6 +1,6 @@
 __pycache__
 octopuspy-env/
-test_data/
+test_data/**
 gen_vasp/
 dist/
 octopuspy.egg-info/
