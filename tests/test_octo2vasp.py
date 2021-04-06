@@ -9,7 +9,6 @@ from io import StringIO
 from scripts.octo2vasp import Octo2Vasp
 
 test_data_dir = 'test_data'
-print(os.path.dirname(os.path.abspath(__file__)))
 if 'win' in sys.platform:
     test_path = os.path.join( os.path.dirname( __file__ ), test_data_dir ) + '\\'
 else:
