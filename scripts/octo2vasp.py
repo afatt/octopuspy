@@ -28,10 +28,15 @@ import numpy.ma as ma
 from glob import glob
 from math import pi
 
+# Add octopuspy to the python path
+path = os.getcwd()
+sys.path.append(os.path.abspath(os.path.join(path, os.pardir)))
+
 # local modules
-from info import Info
-from results import Results
-from bandstructure import Bandstructure
+from octopuspy.info import Info
+from octopuspy.results import Results
+from octopuspy.bandstructure import Bandstructure
+
 
 
 class Octo2Vasp():
@@ -56,7 +61,10 @@ class Octo2Vasp():
 
         zipped_vectors = self.info.get_lattice_vectors()
 
-        f = open('../gen_vasp/' + self.name +  '/OUTCAR', 'w')
+        par_path = os.path.abspath(os.path.join(path, os.pardir))
+        fullpaths = [file for file in glob(par_path + '/**/gen_vasp', recursive=True)]
+
+        f = open(fullpaths[0] + '/' + self.name +  '/OUTCAR', 'w')
         direct_header = 'direct lattice vectors'
         f.write('      ')
         f.write(direct_header.ljust(39) + 'reciprocal lattice vectors\n')
@@ -87,7 +95,10 @@ class Octo2Vasp():
         num_ions = self.info.num_ions
         weights = self.results.weights
 
-        f = open('../gen_vasp/' + self.name +  '/PROCAR', 'w')
+        par_path = os.path.abspath(os.path.join(path, os.pardir))
+        fullpaths = [file for file in glob(par_path + '/**/gen_vasp', recursive=True)]
+
+        f = open(fullpaths[0] + '/' + self.name +  '/PROCAR', 'w')
         f.write('PROCAR new format' + '\n')
         f.write('# of k-points: {}          '.format(num_kpoints))
         f.write('# of bands:  {}         '.format(num_bands))

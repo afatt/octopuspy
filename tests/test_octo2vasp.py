@@ -6,10 +6,11 @@ import numpy as np
 from glob import glob
 from io import StringIO
 
-from octopuspy.octo2vasp import Octo2Vasp
+from scripts.octo2vasp import Octo2Vasp
 from octopuspy.bandstructure import Bandstructure
 
 test_data_dir = 'test_data'
+print(os.path.dirname(os.path.abspath(__file__)))
 if 'win' in sys.platform:
     test_path = os.path.join( os.path.dirname( __file__ ), test_data_dir ) + '\\'
 else:
@@ -25,10 +26,10 @@ class TestOcto2Vasp(unittest.TestCase):
         k-point\s+(\d+)\s*:\s+([- ][01].\d{8})([- ][01].\d{8})([- ][01].\d{8})\s+weight = ([01].\d+)
         '''
 
-        fullpaths = [file for file in glob('./**/bandstructure*', recursive=True)]
+        fullpaths = [file for file in glob('../**/bandstructure*', recursive=True)]
         filepaths = [os.path.dirname(path) + '/' for path in fullpaths]
-        win_path = '.\\tests\\test_data\\pos_kpoints\\bandstructure'
-        lin_path = './tests/test_data/pos_kpoints/bandstructure'
+        win_path = '..\\octopuspy\\tests\\test_data\\pos_kpoints\\bandstructure'
+        lin_path = '../octopuspy/tests/test_data/pos_kpoints/bandstructure'
         try:
             idx = fullpaths.index(win_path)
         except Exception as err:
@@ -77,10 +78,10 @@ class TestOcto2Vasp(unittest.TestCase):
         k-point\s+(\d+)\s*:\s+([- ][01].\d{8})([- ][01].\d{8})([- ][01].\d{8})\s+weight = ([01].\d+)
         '''
 
-        fullpaths = [file for file in glob('./**/bandstructure*', recursive=True)]
+        fullpaths = [file for file in glob('../**/bandstructure*', recursive=True)]
         filepaths = [os.path.dirname(path) + '/' for path in fullpaths]
-        win_path = '.\\tests\\test_data\\neg_kpoints\\bandstructure'
-        lin_path = './tests/test_data/neg_kpoints/bandstructure'
+        win_path = '..\\octopuspy\\tests\\test_data\\neg_kpoints\\bandstructure'
+        lin_path = '../octopuspy/tests/test_data/neg_kpoints/bandstructure'
         try:
             idx = fullpaths.index(win_path)
         except Exception as err:
@@ -129,10 +130,10 @@ class TestOcto2Vasp(unittest.TestCase):
         k-point\s+(\d+)\s*:\s+([- ][01].\d{8})([- ][01].\d{8})([- ][01].\d{8})\s+weight = ([01].\d+)
         '''
 
-        fullpaths = [file for file in glob('./**/bandstructure*', recursive=True)]
+        fullpaths = [file for file in glob('../**/bandstructure*', recursive=True)]
         filepaths = [os.path.dirname(path) + '/' for path in fullpaths]
-        win_path = '.\\tests\\test_data\\mixed_sign_kpoints\\bandstructure'
-        lin_path = './tests/test_data/mixed_sign_kpoints/bandstructure'
+        win_path = '..\\octopuspy\\tests\\test_data\\mixed_sign_kpoints\\bandstructure'
+        lin_path = '../octopuspy/tests/test_data/mixed_sign_kpoints/bandstructure'
         try:
             idx = fullpaths.index(win_path)
         except Exception as err:
