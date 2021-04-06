@@ -91,8 +91,7 @@ class Bandstructure():
         valence band max and conduction band minimum are labeled with a '*'
 
         Output:
-          bandstructure_plot.png: bandstructure figure saved to the current
-                                  working directory
+          bandstructure_plot.png: bandstructure figure saved to the gen_vasp folder
         '''
 
         x_data = self._bandstructure[:,0]
@@ -128,7 +127,7 @@ class Bandstructure():
         ax.tick_params(axis='both',labelsize=12)
 
         plt.axhline(y=0)
-        fig.savefig('./gen_vasp/' + self._name + '/bandstructure_plot.png')
+        fig.savefig('../gen_vasp/' + self._name + '/bandstructure_plot.png')
 
     def simple_plot(self):
         '''

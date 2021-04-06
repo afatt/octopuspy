@@ -16,7 +16,7 @@ Example use:           (required arg)     (optional arg)
 python octo2vasp.py --name Si_03082021 --energy_scale 1.0
 
 Outputs:
-./gen_vasp/Si_03082021/PROCAR, ./gen_vasp/Si_03082021/OUTCAR, ./gen_vasp/Si_03082021/bandstructure_plot.png
+../gen_vasp/Si_03082021/PROCAR, ../gen_vasp/Si_03082021/OUTCAR, ../gen_vasp/Si_03082021/bandstructure_plot.png
 '''
 
 import os
@@ -29,9 +29,9 @@ from glob import glob
 from math import pi
 
 # local modules
-from octopuspy.info import Info
-from octopuspy.results import Results
-from octopuspy.bandstructure import Bandstructure
+from info import Info
+from results import Results
+from bandstructure import Bandstructure
 
 
 class Octo2Vasp():
@@ -56,7 +56,7 @@ class Octo2Vasp():
 
         zipped_vectors = self.info.get_lattice_vectors()
 
-        f = open('./gen_vasp/' + self.name +  '/OUTCAR', 'w')
+        f = open('../gen_vasp/' + self.name +  '/OUTCAR', 'w')
         direct_header = 'direct lattice vectors'
         f.write('      ')
         f.write(direct_header.ljust(39) + 'reciprocal lattice vectors\n')
@@ -87,7 +87,7 @@ class Octo2Vasp():
         num_ions = self.info.num_ions
         weights = self.results.weights
 
-        f = open('./gen_vasp/' + self.name +  '/PROCAR', 'w')
+        f = open('../gen_vasp/' + self.name +  '/PROCAR', 'w')
         f.write('PROCAR new format' + '\n')
         f.write('# of k-points: {}          '.format(num_kpoints))
         f.write('# of bands:  {}         '.format(num_bands))
@@ -130,7 +130,7 @@ class Octo2Vasp():
         Prompts the user to choose which bandstructure file to use from all
         available under the current working directory
         '''
-        fullpaths = [file for file in glob('./**/bandstructure*', recursive=True)]
+        fullpaths = [file for file in glob('../**/bandstructure*', recursive=True)]
         filepaths = [os.path.dirname(path) + '/' for path in fullpaths]
         for idx, path in enumerate(fullpaths):
             print('[{}] {}\n'.format(idx + 1, path))
@@ -186,7 +186,7 @@ def main():
             # create a folder where the files for this semiconductor will be
             # saved
             try:
-                os.mkdir('./gen_vasp/' + name )
+                os.mkdir('../gen_vasp/' + name )
             except FileExistsError as err:
                 raise FileExistsError('Can not make a folder of the same name: %s' % name)
 
