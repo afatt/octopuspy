@@ -34,7 +34,7 @@ class Bandstructure():
       valence_band_index (int): The column number of where the valence band exists in the
                                 bandstructure file (equal to number of dos files)
     '''
-    def __init__(self, name, filepath, energy_scale, valence_band_index):
+    def __init__(self, filepath, energy_scale, valence_band_index, name=None):
         '''
         Args:
           name (string): name of the semiconductor used for saving output files
@@ -127,7 +127,10 @@ class Bandstructure():
         ax.tick_params(axis='both',labelsize=12)
 
         plt.axhline(y=0)
-        fig.savefig('../gen_vasp/' + self._name + '/bandstructure_plot.png')
+        if self._name is None:
+            print('When using plot_bands you must provide a name to Bandstructure')
+        else:
+            fig.savefig('../gen_vasp/' + self._name + '/bandstructure_plot.png')
 
     def simple_plot(self):
         '''
@@ -150,7 +153,10 @@ class Bandstructure():
         ax.tick_params(axis='both',labelsize=12)
 
         plt.axhline(y=0)
-        fig.savefig('./gen_vasp/' + self._name + '/bandstructure_plot.png')
+        if self._name is None:
+            print('When using simple_plot you must provide a name to Bandstructure')
+        else:
+            fig.savefig('../gen_vasp/' + self._name + '/bandstructure_plot.png')
 
     def _get_conduction_band(self, unoccupied_bands):
         '''

@@ -47,7 +47,7 @@ class Octo2Vasp():
         print("Energy Scale: " + str(energy_scale))
         print("Valence Band Index: " + str(valence_band_index))
         self.filepath = self.user_prompt()
-        self.bs = Bandstructure(self.name, self.filepath, energy_scale, valence_band_index)
+        self.bs = Bandstructure(self.filepath, energy_scale, valence_band_index, self.name)
         self.info = Info(self.filepath)
         self.results = Results(self.filepath, self.bs.num_kpoints)
 
