@@ -1,4 +1,5 @@
 __pycache__
+lin-octo-env/
 octopuspy-env/
 test_data/**
 gen_vasp/*
