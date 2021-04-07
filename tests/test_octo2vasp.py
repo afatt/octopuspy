@@ -42,7 +42,7 @@ class TestOcto2Vasp(unittest.TestCase):
 
         oldstdin = sys.stdin
         sys.stdin = StringIO(str(selection))
-        o2v = Octo2Vasp(name='test_out', valence_band_index=4)
+        o2v = Octo2Vasp(name='test_out', occ_band_num=4)
 
         try:
             os.mkdir('./gen_vasp/test_out')
@@ -94,7 +94,7 @@ class TestOcto2Vasp(unittest.TestCase):
 
         oldstdin = sys.stdin
         sys.stdin = StringIO(str(selection))
-        o2v = Octo2Vasp(name='test_out', valence_band_index=4)
+        o2v = Octo2Vasp(name='test_out', occ_band_num=4)
 
         o2v.filepath = './test_data'
         try:
@@ -146,7 +146,7 @@ class TestOcto2Vasp(unittest.TestCase):
 
         oldstdin = sys.stdin
         sys.stdin = StringIO(str(selection))
-        o2v = Octo2Vasp(name='test_out', valence_band_index=4)
+        o2v = Octo2Vasp(name='test_out', occ_band_num=4)
 
         o2v.filepath = './test_data'
         try:

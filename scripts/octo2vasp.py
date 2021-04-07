@@ -12,8 +12,8 @@ results -> kpoint weight
 bandstructure -> number of kpoints, num bands, energies, occupancies (calculated)
 conduction band, valence band, conduction band min, and valence band max
 
-Example use:           (required arg)       (optional arg)
-python octo2vasp.py --name Si_03082021 --valence_band_index 4
+Example use:           (required arg)   (optional arg)
+python octo2vasp.py --name Si_03082021 --occ_band_num 4
 
 Outputs:
 ../gen_vasp/Si_03082021/PROCAR, ../gen_vasp/Si_03082021/OUTCAR, ../gen_vasp/Si_03082021/bandstructure_plot.png
@@ -41,12 +41,10 @@ from octopuspy.bandstructure import Bandstructure
 
 class Octo2Vasp():
 
-    def __init__(self, name, valence_band_index):
+    def __init__(self, name, occ_band_num):
         self.name = name
-        print("Semiconductor name: " + name)
-        print("Valence Band Index: " + str(valence_band_index))
         self.filepath = self.user_prompt()
-        self.bs = Bandstructure(self.filepath, valence_band_index, self.name)
+        self.bs = Bandstructure(self.filepath, occ_band_num, self.name)
         self.info = Info(self.filepath)
         self.results = Results(self.filepath, self.bs.num_kpoints)
 
@@ -180,7 +178,7 @@ def main():
 
     # arg default values, raise exception on required args
     name = ''
-    valence_band_index = None
+    occ_band_num = None
 
     if not len(args):
         raise ValueError('Must include a name using option -n or --name')
@@ -199,16 +197,16 @@ def main():
             except FileExistsError as err:
                 raise FileExistsError('Can not make a folder of the same name: %s' % name)
 
-        elif curr_arg in ('-v', '--valence_band_index'):
+        elif curr_arg in ('-o', '--occ_band_num'):
             try:
-                valence_band_index = int(curr_value)
+                occ_band_num = int(curr_value)
             except ValueError as err:
-                raise ValueError('Valence band index must be an integer')
+                raise ValueError('Number of occupied bands must be an integer')
 
     if name == '':
         raise ValueError('Must include a name using option -n or --name')
 
-    octo2vasp = Octo2Vasp(name=name, valence_band_index=valence_band_index)
+    octo2vasp = Octo2Vasp(name=name, occ_band_num=occ_band_num)
     octo2vasp.gen_outcar()
     octo2vasp.gen_procar()
     octo2vasp.bs.plot_bands()

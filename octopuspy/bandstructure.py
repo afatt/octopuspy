@@ -30,10 +30,10 @@ class Bandstructure():
       num_kpoints (int): number of kpoints from the bandstructure file
       energies (numpy array): with shape (num kpoints, num bands)
       occupancies (numpy array): with shape (num kpoints, num bands)
-      valence_band_index (int): The column number of where the valence band exists in the
-                                bandstructure file (equal to number of dos files)
+      occ_band_num (int): The number of occupied bands that exist in the
+                          bandstructure file (equal to number of dos files)
     '''
-    def __init__(self, filepath, valence_band_index, name=None):
+    def __init__(self, filepath, occ_band_num=None, name=None):
         '''
         Args:
           name (string): name of the semiconductor used for saving output files
@@ -41,7 +41,7 @@ class Bandstructure():
         '''
         self._name = name
         self.filepath = filepath
-        self.valence_band_index = valence_band_index
+        self.occ_band_num = occ_band_num
         self._bandstructure_path = self.filepath + 'bandstructure'
         self._bandstructure = np.array(np.loadtxt(self._bandstructure_path))
         self._efermi_path = self.filepath + 'total-dos-efermi.dat'
@@ -185,7 +185,7 @@ class Bandstructure():
             valence_band = occupied_bands[-1, :]
             vb_max = valence_band.max()
         except IndexError as err:
-            raise ValueError('Error determining valence band, try manually entering with -v/--valence_band_index')
+            raise ValueError('Error determining valence band, try manually entering with -o/--occ_band_num')
 
         return(valence_band, vb_max)
 
@@ -193,20 +193,20 @@ class Bandstructure():
         '''
         Takes the energies numpy array shape (num_bands, num_kpoints) and
         creates two numpy arrays, occupied and unoccupied bands. Takes user input
-        of valence_band_index or the number of dos files found in the folder to
+        of occ_band_num or the number of dos files found in the folder to
         separate the occupied and unoccupied bands
 
         Returns:
           occupied_bands (numpy array): shape (num_bands, num_kpoints)
           unoccupied_bands (numpy array): shape (num_bands, num_kpoints)
         '''
-        if self.valence_band_index is None:
+        if self.occ_band_num is None:
             match = self.filepath + 'dos-*.dat'
             paths = [file for file in glob(match)]
-            self.valence_band_index = len(paths)
+            self.occ_band_num = len(paths)
 
-        occupied_bands = self.energies[:,:self.valence_band_index]
-        unoccupied_bands = self.energies[:,self.valence_band_index:]
+        occupied_bands = self.energies[:,:self.occ_band_num]
+        unoccupied_bands = self.energies[:,self.occ_band_num:]
 
         # change to shape (num_bands, num_kpoints)
         occupied_bands = occupied_bands.T
