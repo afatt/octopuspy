@@ -24,7 +24,6 @@ class Bandstructure():
       _bandstructure (numpy array): with shape (kpoints, band_info)
       _efermi_path (string): filepath with the addition of the total-dos-efermi.dat file
       efermi (float): fermi energy
-      energy_scale (float): how much to scale down the bandstructure energies
       filepath (string): filepath to the bandstructure and total-dos-efermi.dat files
       kpoints (zipped numpy arrays): (kx array, ky array, kz array) shapes (num_kpoints, )
       num_bands (int): number of bands from the bandstructure file
@@ -34,12 +33,11 @@ class Bandstructure():
       valence_band_index (int): The column number of where the valence band exists in the
                                 bandstructure file (equal to number of dos files)
     '''
-    def __init__(self, filepath, energy_scale, valence_band_index, name=None):
+    def __init__(self, filepath, valence_band_index, name=None):
         '''
         Args:
           name (string): name of the semiconductor used for saving output files
           filepath (string): the filepath to the bandstructure and total-dos-efermi.dat files
-          energy_scale (float): how much to scale down the bandstructure energies
         '''
         self._name = name
         self.filepath = filepath
@@ -48,7 +46,6 @@ class Bandstructure():
         self._bandstructure = np.array(np.loadtxt(self._bandstructure_path))
         self._efermi_path = self.filepath + 'total-dos-efermi.dat'
         self.efermi = np.loadtxt(self._efermi_path)[0,0]
-        self.energy_scale = energy_scale
         self.kpoints = zip(self._bandstructure[:,1], self._bandstructure[:,2],
                            self._bandstructure[:,3])
         self.num_bands = self._bandstructure.shape[1] - 4
@@ -71,7 +68,7 @@ class Bandstructure():
         # numpy array with shape (num kpoints, num bands)
         energies = self._bandstructure[:, 4:]
         energies = energies - self.efermi
-        self.energies = energies / self.energy_scale
+        self.energies = energies
 
         # unocc_bands (numpy array): shape (num_bands, num_kpoints)
         occ_bands, unocc_bands = self._split_bands()
