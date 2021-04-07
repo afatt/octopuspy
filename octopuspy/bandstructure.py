@@ -185,7 +185,7 @@ class Bandstructure():
             valence_band = occupied_bands[-1, :]
             vb_max = valence_band.max()
         except IndexError as err:
-            raise ValueError('Error determining valence band, try manually entering with -o/--occ_band_num')
+            raise ValueError('Error determining valence band, try manually entering the number of occupied bands with -o/--occ_band_num or using the occ_band_num argument')
 
         return(valence_band, vb_max)
 
@@ -203,7 +203,10 @@ class Bandstructure():
         if self.occ_band_num is None:
             match = self.filepath + 'dos-*.dat'
             paths = [file for file in glob(match)]
-            self.occ_band_num = len(paths)
+            if len(paths):
+                self.occ_band_num = len(paths)
+            else:
+                raise ValueError('Error determining valence band, try manually entering the number of occupied bands with -o/--occ_band_num or using the occ_band_num argument')
 
         occupied_bands = self.energies[:,:self.occ_band_num]
         unoccupied_bands = self.energies[:,self.occ_band_num:]
