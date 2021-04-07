@@ -21,17 +21,17 @@ or if the package exists locally:
 Required Files: bandstructure, info, results.out, and dos-xxx.dat files (if these don't exists the number of occupied bands can be specified)
 
 **bandstructure**
-file includes: number of kpoints, number of bands, energies, and occupancies (calculated). The Bandstructure class uses the dos-xxx.dat files to determine the number of occupied bands, if none are found user will be prompted to use the `--occ_band_num` on the command line to set number of occupied bands:
+file includes: number of kpoints, number of bands, energies, and occupancies (calculated). The Bandstructure class uses the dos-xxx.dat files to determine the number of occupied bands, if none are found user will be prompted to use the `occ_band_num` to set the number of occupied bands:
 
-    band_data = bandstructure.Bandstructure(name, bandstructure_filepath, occ_band_num=10)
+    band_data = Bandstructure(name, bandstructure_filepath, occ_band_num=10)
 
 **info** file includes: direct lattice vector, reciprocal lattice vector, and number of ions:
 
-    info_data = info.Info(info_filepath)
+    info_data = Info(info_filepath)
 
 **results.out** file includes: kpoint weights
 
-    results_out = results.Results(results_filepath, num_kpoints)
+    results_out = Results(results_filepath, num_kpoints)
 
 The `octopuspy` package includes the script `octo2vasp.py` for converting the  
 
