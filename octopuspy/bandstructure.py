@@ -39,6 +39,7 @@ class Bandstructure():
           name (string): name of the semiconductor used for saving output files
           filepath (string): the filepath to the bandstructure and total-dos-efermi.dat files
         '''
+
         self._name = name
         self.filepath = filepath
         self.occ_band_num = occ_band_num

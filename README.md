@@ -18,7 +18,7 @@ or if the package exists locally:
 
 ## How To Use
 
-Required Files: bandstructure, info, results.out, and dos-xxx.dat files (if these don't exists the number of occupied bands can be specified)
+Required Files: bandstructure, info, results.out, and dos-xxxx.dat files (if these don't exists the number of occupied bands can be specified)
 
 **bandstructure**
 file includes: number of kpoints, number of bands, energies, and occupancies (calculated). The Bandstructure class uses the dos-xxx.dat files to determine the number of occupied bands, if none are found user will be prompted to use the `occ_band_num` to set the number of occupied bands:
