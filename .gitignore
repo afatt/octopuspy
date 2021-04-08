@@ -7,3 +7,4 @@ gen_vasp/*
 dist/
 octopuspy.egg-info/
 architecture_plan.txt
+htmlcov/
