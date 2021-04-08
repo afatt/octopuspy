@@ -12,6 +12,10 @@ env:
   - secure: uMGlPEIYZJVt8C5MWzlKyvPO1awnAyJbhMgnRuaBKh9MP2kDjf9Au2Ttpl57cdNI1USwGfd/m7MRPvLD3nWf4ePYtYIUX3xbSEWobODkwdU8Z0btu+pJS0wprtWj0vHocd4ECssROmZOQ+OXMVHLRQCgm03p0osJevqx4e97Lf0tFzdzexPqom0fH6+J0oacochKTEBzawtd4b8o7ASwCbePFfXdtDVpcb4xuftqnZRXbuK+I4piPordlvgRv3f9iGCYxkIYQms0iN6aSa9r3e4zk7SX3N1EOgk1yU1rnNlFVnwRCN6JOjf4Q3Knp3kGfp5KaQpd0QXN8SgmwpoLtHZFcJ53lrEnQSA+NzH5j6JjRSXS824LUsx5y98s5Nyg4UTy/SrakBxmWi5Paduih64D5gvSzmrM8aCis2t+z0iBKa91bIyc1SAoPs3nCsiPuHCfZDkgWV9Q9u3A8ftWFbt1bKZiI17Hh1SrnEnTIFfnfBLHyXiqpRUa8Po6WyGEo2N05AymAw8KZETj6cOgN9cPR7fKPreh+e4rhhh3vVdSbpJoqAgOt0KG36PxvHRJ2poVVAhJ3SdnuR8V2o/VTHo4/Doqk9+r4+dFZ9jhicASGs8iI2KnIf83Mo3zAfuvBNlgH70cu0Z/B3iUdrGpFtgsBFsJ60ivmPxKXVD1+n8=
 install:
 - pip install -r requirements.txt
+before_script:  # code coverage tool
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
 script: coverage run --rcfile=.coveragerc -m unittest discover
 after_success:
 - codeclimate-test-reporter --token $CODECLIMATE_REPO_TOKEN
