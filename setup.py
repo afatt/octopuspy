@@ -17,10 +17,10 @@ REQUIRES = [
 setup(
     name='octopuspy',
     author='Austin Fatt',
-    author_email='austin.d.fatt@navy.mil',
-    url='',
+    author_email='afatt90@gmail.com, austin.d.fatt@navy.mil',
+    url='https://github.com/afatt/octopuspy',
     version=__version__,
-    license='',
+    license='MIT',
     classifiers=[
         'Programming Language :: Python :: 3.7'
     ],
