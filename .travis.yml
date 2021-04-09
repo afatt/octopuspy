@@ -19,4 +19,4 @@ before_script:  # code coverage tool
 script: coverage run --rcfile=.coveragerc -m unittest discover
 after_script: 
   - coverage report
-  - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "3.7" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
+  - if [[ "$TRAVIS_PULL_REQUEST" == "false" && "$TRAVIS_PYTHON_VERSION" == "3.7" ]]; then ./cc-test-reporter after-build -t coverage.py -p ./.coverage --exit-code $TRAVIS_TEST_RESULT; fi
