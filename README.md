@@ -21,12 +21,12 @@ Or download the source code and install:
 
 ### API
 
-Required `Octopus` files: **bandstructure**, **info**, **results.out**, and dos-xxxx.dat files (if these dos files are not provided the number of occupied bands can be specified)
+Required `Octopus` files: **bandstructure**, **info**, **results.out**, and **eigenvalues**
 
 **bandstructure**
-file includes: number of kpoints, number of bands, energies, and occupancies (calculated). The Bandstructure class uses the dos-xxx.dat files to determine the number of occupied bands, if none are found user will be prompted to use the `occ_band_num` to set the number of occupied bands:
+file includes: number of kpoints, number of bands, energies. The Bandstructure class uses the dos-xxx.dat files to determine the number of occupied bands, if none are found user will be prompted to use the `occ_band_num` to set the number of occupied bands:
 
-    band_data = Bandstructure(filepath='./GaAs_HSE06', occ_band_num=9, name='GaAs_HSE06_04092021')
+    band_data = Bandstructure(filepath='./GaAs_HSE06', name='GaAs_HSE06_04092021')
 
 **info** file includes: direct lattice vector, reciprocal lattice vector, and number of ions:
 
@@ -38,9 +38,9 @@ file includes: number of kpoints, number of bands, energies, and occupancies (ca
 
 ### Scripts
 
-The `octopuspy` package includes the script `octo2vasp.py` for converting the **bandstructure**, **info**, and **results.out** files into [VASP](https://www.vasp.at/) PROCAR and OUTCAR files.⚠️ *The PROCAR and OUTCAR files generated are not true VASP files, they contain only the minimum data required to use in the effmass package*.
+The `octopuspy` package includes the script `octo2vasp.py` for converting the **bandstructure**, **info**, **results.out**, **eigenvalues** files into [VASP](https://www.vasp.at/) PROCAR and OUTCAR files.⚠️ *The PROCAR and OUTCAR files generated are not true VASP files, they contain only the minimum data required to use in the effmass package*.
 
-Copy your `Octopus` files: **bandstructure**, **info**, **results.out**, and dos-xxxx.dat into a new folder anywhere inside the octopuspy package and run:
+Copy your `Octopus` files: **bandstructure**, **info**, **results.out**, and **eigenvalues** into a new folder anywhere inside the octopuspy package and run:
 
 	cd scripts
 	python3 octo2vasp.py --name name_of_semiconductor
