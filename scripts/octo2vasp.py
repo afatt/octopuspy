@@ -9,11 +9,12 @@ Octopus files and what needed information they contain
 ---------------------------------------
 info -> reciprocal lattice vector, number of ions
 results -> kpoint weight
-bandstructure -> number of kpoints, num bands, energies, occupancies (calculated)
-conduction band, valence band, conduction band min, and valence band max
+bandstructure -> number of kpoints, num bands, energies, conduction band, 
+                 valence band, conduction band min, and valence band max
+eigenvalues -> occupation, number of occupied bands
 
-Example use:           (required arg)   (optional arg)
-python octo2vasp.py --name Si_03082021 --occ_band_num 4
+Example use:           (required arg) 
+python octo2vasp.py --name Si_03082021
 
 Outputs:
 ../gen_vasp/Si_03082021/PROCAR, ../gen_vasp/Si_03082021/OUTCAR, ../gen_vasp/Si_03082021/bandstructure_plot.png
@@ -41,10 +42,10 @@ from octopuspy.bandstructure import Bandstructure
 
 class Octo2Vasp():
 
-    def __init__(self, name, occ_band_num):
+    def __init__(self, name):
         self.name = name
         self.filepath = self.user_prompt()
-        self.bs = Bandstructure(self.filepath, occ_band_num, self.name)
+        self.bs = Bandstructure(self.filepath, self.name)
         self.info = Info(self.filepath)
         self.results = Results(self.filepath, self.bs.num_kpoints)
 
@@ -178,7 +179,6 @@ def main():
 
     # arg default values, raise exception on required args
     name = ''
-    occ_band_num = None
 
     if not len(args):
         raise ValueError('Must include a name using option -n or --name')
@@ -197,16 +197,10 @@ def main():
             except FileExistsError as err:
                 raise FileExistsError('Can not make a folder of the same name: %s' % name)
 
-        elif curr_arg in ('-o', '--occ_band_num'):
-            try:
-                occ_band_num = int(curr_value)
-            except ValueError as err:
-                raise ValueError('Number of occupied bands must be an integer')
-
     if name == '':
         raise ValueError('Must include a name using option -n or --name')
 
-    octo2vasp = Octo2Vasp(name=name, occ_band_num=occ_band_num)
+    octo2vasp = Octo2Vasp(name=name)
     octo2vasp.gen_outcar()
     octo2vasp.gen_procar()
     octo2vasp.bs.plot_bands()

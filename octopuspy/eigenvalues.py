@@ -4,16 +4,31 @@ available to use
 
 Information contained in bandstructure file
 -------------------------------------------
-eigenvalues -> occupation, number of occupied bands, number of unoccupied bands
+eigenvalues -> occupation, number of occupied bands
 '''
 
 import numpy as np
 
 class Eigenvalues():
+    '''
+    Class that holds and gives methods to the information of an eigenvalues
+    file
 
+    Attributes:
+      _eigenvalues (list string): holds all the data of the eigenvalues file in a list
+      _eigenvalues_path (string): filepath with the addition of the eigenvalues file
+      _num_bands (int): number of bands
+      _num_kpoints (int): number of kpoints
+      num_occ_bands (int): number of occupied bands
+      occupancies (numpy array): of shape (num_kpoints, num_bands) type (float64)
+    '''
 
     def __init__(self, filepath, num_kpoints, num_bands):
         '''
+        Args:
+          filepath (string): filepath to find eigenvalues file
+          num_kpoints (int): number of kpoints
+          num_bands (int): number of bands
         '''
         
         self._eigenvalues = None
@@ -21,12 +36,16 @@ class Eigenvalues():
         self._num_bands = num_bands
         self._num_kpoints = num_kpoints
         self.num_occ_bands = None
-        self.num_unocc_bands = None
+        self.occupancies = None
         self._load_eigenvalues()
 
 
     def get_occupancies(self):
         '''
+        Extracts the occupancies from the eigenvalue data
+
+        Returns:
+          occupancies (numpy array): of shape (num_kpoints, num_bands) type (float64)
         '''
 
         # find the index of the match and get numkpoints of lines results
@@ -51,6 +70,10 @@ class Eigenvalues():
 
     def get_num_occ_bands(self):
         '''
+        Extracts the number of occupied bands from the occupancy array
+        
+        Returns:
+          num_occ_bands (int): Number of occupied bands
         '''
 
         # any nonzero occupancy is considered occupied

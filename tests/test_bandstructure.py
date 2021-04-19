@@ -20,7 +20,7 @@ class TestBandstructure(unittest.TestCase):
     def test_name(self):
         '''Make sure the name attibute is properly set'''
 
-        bs = Bandstructure(test_path, occ_band_num=None, name='Si_03082021')
+        bs = Bandstructure(test_path, name='Si_03082021')
         name = 'Si_03082021'
         self.assertEqual(bs._name, name)
 
@@ -168,42 +168,6 @@ class TestBandstructure(unittest.TestCase):
         vb, vb_max = bs._get_valence_band(occupied_bands)
         self.assertTrue(np.allclose(vb, val_band))
         self.assertEqual(vb_max, band_max)
-
-    def test_valence_band_no_dos(self):
-        '''Tests the setting of the valence band when no dos-xxxx.dat files are present and num_occ_bands is specified'''
-
-        bs = Bandstructure(no_dos_path, occ_band_num=4)
-        occupied_bands = np.array([[-7.74445402, -7.71460976, -7.62519023, -7.47653932],
-                                   [4.07037476, 3.86361199, 3.35857616, 2.71474520],
-                                   [4.07037593, 3.94921615, 3.65323831, 3.28609405],
-                                   [4.07038233, 3.94921884, 3.65323944, 3.28609571]])
-
-        val_band = occupied_bands[-1,:]
-        band_max = 4.07038233
-
-        vb, vb_max = bs._get_valence_band(occupied_bands)
-        self.assertTrue(np.allclose(vb, val_band))
-        self.assertEqual(vb_max, band_max)
-
-    def test_valence_band_exception(self):
-        '''When there are no dos-xxxx.dat files provided and no occ_band_num specified it should raise an exception'''
-
-        bs = Bandstructure(no_dos_path)
-        occupied_bands = np.array([])
-
-        with self.assertRaises(Exception) as context:
-            bs._get_valence_band(occupied_bands)
-
-        self.assertTrue(ValueError, type(context.exception))
-
-    def test_split_bands_exception(self):
-        '''When there are no dos-xxxx.dat files provided and no occ_band_num specified it should raise an exception'''
-
-        bs = Bandstructure(no_dos_path)
-        with self.assertRaises(Exception) as context:
-            bs._split_bands()
-
-        self.assertTrue(ValueError, type(context.exception))
 
 
 if __name__ == '__main__':

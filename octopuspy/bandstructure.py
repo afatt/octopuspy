@@ -32,10 +32,10 @@ class Bandstructure():
       num_kpoints (int): number of kpoints from the bandstructure file
       energies (numpy array): with shape (num kpoints, num bands)
       occupancies (numpy array): with shape (num kpoints, num bands)
-      occ_band_num (int): The number of occupied bands that exist in the
-                          bandstructure file (equal to number of dos files)
+      occ_band_num (int): The number of occupied bands
     '''
-    def __init__(self, filepath, occ_band_num=None, name=None):
+
+    def __init__(self, filepath, name=None):
         '''
         Args:
           name (string): name of the semiconductor used for saving output files
@@ -44,7 +44,7 @@ class Bandstructure():
 
         self._name = name
         self.filepath = filepath
-        self.occ_band_num = occ_band_num
+        self.occ_band_num = None
         self._bandstructure_path = self.filepath + 'bandstructure'
         self._bandstructure = np.array(np.loadtxt(self._bandstructure_path))
         self._efermi_path = self.filepath + 'total-dos-efermi.dat'
@@ -182,7 +182,7 @@ class Bandstructure():
             valence_band = occupied_bands[-1, :]
             vb_max = valence_band.max()
         except IndexError as err:
-            raise ValueError('Error determining valence band, try manually entering the number of occupied bands with -o/--occ_band_num or using the occ_band_num argument')
+            raise ValueError('Error determining valence band')
 
         return(valence_band, vb_max)
 
