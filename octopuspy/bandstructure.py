@@ -13,6 +13,8 @@ import numpy.ma as ma
 import matplotlib.pyplot as plt
 from glob import glob
 
+from octopuspy.eigenvalues import Eigenvalues
+
 class Bandstructure():
     '''
     Class that holds and gives methods to the information of a bandstructure
@@ -53,6 +55,7 @@ class Bandstructure():
         self.num_kpoints = self._bandstructure.shape[0]
         self.energies = None
         self.occupancies = None
+        self.ev = Eigenvalues(self.filepath, self.num_kpoints, self.num_bands)
 
     def get_eigenvalues(self):
         '''
@@ -71,14 +74,7 @@ class Bandstructure():
         energies = energies - self.efermi
         self.energies = energies
 
-        # unocc_bands (numpy array): shape (num_bands, num_kpoints)
-        occ_bands, unocc_bands = self._split_bands()
-
-        # create a numpy array with same shape as energies
-        # fill the occupied bands with occupancy of 2.0
-        self.occupancies = np.zeros(energies.shape)
-        mask = np.isin(self.energies, occ_bands.T)
-        self.occupancies[mask] = 2.0
+        self.occupancies = self.ev.get_occupancies()
 
         return(self.energies, self.occupancies)
 
@@ -193,21 +189,14 @@ class Bandstructure():
     def _split_bands(self):
         '''
         Takes the energies numpy array shape (num_bands, num_kpoints) and
-        creates two numpy arrays, occupied and unoccupied bands. Takes user input
-        of occ_band_num or the number of dos files found in the folder to
-        separate the occupied and unoccupied bands
+        creates two numpy arrays, occupied and unoccupied bands.
 
         Returns:
           occupied_bands (numpy array): shape (num_bands, num_kpoints)
           unoccupied_bands (numpy array): shape (num_bands, num_kpoints)
         '''
-        if self.occ_band_num is None:
-            match = self.filepath + 'dos-*.dat'
-            paths = [file for file in glob(match)]
-            if len(paths):
-                self.occ_band_num = len(paths)
-            else:
-                raise ValueError('Error determining valence band, try manually entering the number of occupied bands with -o/--occ_band_num or using the occ_band_num argument')
+
+        self.occ_band_num = self.ev.get_num_occ_bands()
 
         occupied_bands = self.energies[:,:self.occ_band_num]
         unoccupied_bands = self.energies[:,self.occ_band_num:]
