@@ -24,7 +24,7 @@ Or download the source code and install:
 Required `Octopus` files: **bandstructure**, **info**, **results.out**, and **eigenvalues**
 
 **bandstructure**
-file includes: number of kpoints, number of bands, energies. The Bandstructure class uses the dos-xxx.dat files to determine the number of occupied bands, if none are found user will be prompted to use the `occ_band_num` to set the number of occupied bands:
+file includes: number of kpoints, number of bands, energies:
 
     band_data = Bandstructure(filepath='./GaAs_HSE06', name='GaAs_HSE06_04092021')
 
