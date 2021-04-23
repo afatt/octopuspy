@@ -19,9 +19,9 @@ Or download the source code and install:
 
 ## How To Use
 
-### API
+Required `Octopus` files: **bandstructure**, **info**, **results.out**, **eigenvalues**, and **total-dos-efermi.dat**
 
-Required `Octopus` files: **bandstructure**, **info**, **results.out**, and **eigenvalues**
+### API
 
 **bandstructure**
 file includes: number of kpoints, number of bands, energies:
