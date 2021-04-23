@@ -201,10 +201,18 @@ def main():
         raise ValueError('Must include a name using option -n or --name')
 
     octo2vasp = Octo2Vasp(name=name)
+    print('-------------------------------------------------------------------------')
+    print('Creating OUTCAR...')
     octo2vasp.gen_outcar()
+    print('Creating PROCAR...')
     octo2vasp.gen_procar()
     octo2vasp.bs.plot_bands()
     # octo2vasp.bs.simple_plot()
+
+    write_path = ''.join([os.path.abspath(os.path.join(path, os.pardir)), '/', name])
+    print('-------------------------------------------------------------------------')
+    print('SUCCESS!')
+    print('Your OUTCAR and PROCAR files have been created in: {}'.format(write_path))
 
 
 if __name__ == '__main__':
