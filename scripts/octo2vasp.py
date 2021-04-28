@@ -39,7 +39,6 @@ from octopuspy.results import Results
 from octopuspy.bandstructure import Bandstructure
 
 
-
 class Octo2Vasp():
 
     def __init__(self, name):
@@ -139,6 +138,7 @@ class Octo2Vasp():
         Prompts the user to choose which bandstructure file to use from all
         available under the current working directory
         '''
+        
         fullpaths = [file for file in glob('../**/bandstructure*', recursive=True)]
         filepaths = [os.path.dirname(path) + '/' for path in fullpaths]
         for idx, path in enumerate(fullpaths):
@@ -165,6 +165,7 @@ def slugify(value, allow_unicode=False):
     underscores, or hyphens Also strip leading and trailing whitespace, dashes,
     and underscores.
     """
+
     value = str(value)
     if allow_unicode:
         value = unicodedata.normalize('NFKC', value)
@@ -209,7 +210,7 @@ def main():
     octo2vasp.bs.plot_bands()
     # octo2vasp.bs.simple_plot()
 
-    write_path = ''.join([os.path.abspath(os.path.join(path, os.pardir)), '/', name])
+    write_path = ''.join([os.path.abspath(os.path.join(path, os.pardir)), '/gen_vasp/', name])
     print('-------------------------------------------------------------------------')
     print('SUCCESS!')
     print('Your OUTCAR and PROCAR files have been created in: {}'.format(write_path))

@@ -62,7 +62,7 @@ class Eigenvalues():
         occupancy_list = [row.split()[3] for row in eigenvalues_table]
         occupancies = np.array(occupancy_list)
 
-        # change to shape (num_kpoints, num_bands)
+        # change to shape (num_kpoints, num_bands) and data type to float64
         occupancies.shape = (self._num_kpoints, self._num_bands)
         self.occupancies = occupancies.astype('float64')
 
@@ -75,11 +75,35 @@ class Eigenvalues():
         Returns:
           num_occ_bands (int): Number of occupied bands
         '''
+        
+        for kpoint_occupancies in self.occupancies:
+            
+            # make sure the number of occupied bands isnt calculated from
+            # partial occupancies
+            if self._check_partial_occupancies(kpoint_occupancies):
+                num_occ_bands = np.count_nonzero(kpoint_occupancies)
+                break
 
-        # any nonzero occupancy is considered occupied
-        num_occ_bands = np.count_nonzero(self.occupancies[0])
-        self.num_occ_bands = num_occ_bands
+        self.num_occ_bands= num_occ_bands
+
         return(self.num_occ_bands)
+
+    def _check_partial_occupancies(self, kpoint_occupancies):
+        '''
+        Checks each array for a partial occupancy and returns boolean
+
+        Params:
+            kpoint_occupancies (numpy array): shape (num_bands, )
+
+        Returns:
+            boolean
+        '''
+
+        masking = np.zeros(shape=kpoint_occupancies.shape)
+        np.mod(kpoint_occupancies, 1, out=masking)
+        mask = (masking == 0)
+
+        return((mask==True).all())
 
     def _load_eigenvalues(self):
         '''
