@@ -32,7 +32,7 @@ file includes: number of kpoints, number of bands, energies:
 
     info_data = Info(filepath='./GaAs_HSE06')
 
-**results.out** file includes: kpoint weights. **results.out** is obtained by redirecting the stdout to a new file named results.out when running **Octopus**.```Octopus > results.out```. More explanation found on the Octopus wiki [here](https://octopus-code.org/wiki/Manual:Running_Octopus)
+**results.out** file includes: kpoint weights. **results.out** is obtained by redirecting the stdout to a new file named results.out when running **Octopus**.`Octopus > results.out`. More explanation found on the Octopus wiki [here](https://octopus-code.org/wiki/Manual:Running_Octopus)
 
     results_out = Results(filepath='./GaAs_HSE06', band_data.num_kpoints)
 
@@ -49,7 +49,7 @@ The `octo2vasp.py` script will write the PROCAR, OUTCAR, and a bandstructure_plo
 
 ### Recommended Octopus Settings
 
-Garbage in equals garbage out and testing this package produced a lot of garbage. Here are the Octopus settings that eventually helped achieve results matching the literature:
+Garbage in equals garbage out and testing this package produced a lot of garbage. Included with this package are Octopus settings that helped to achieve results matching the literature **anotated_example_inp**. The **inp** file is also included with each set of `/test_data` for reference. More information about input settings can be found on the Octopus wiki [here](https://octopus-code.org/wiki/Manual:Input_file)
 
 ## Testing
 

@@ -1,0 +1,45 @@
+## All of this information and much more can be found at : https://www.octopus-code.org/wiki/Main_Page
+
+## The following is an example of an input file, which must be named 'inp', that can be used to run an Octopus calculation
+
+
+#FromScratch=yes ## not always used, but signals the code to ignore restart information
+ExperimentalFeatures = yes  ## A required flag to use some features
+UnitsOutput= ev_angstrom  ## outputs the results in eVs and angstroms. Otherwise you get amus and hatrees
+UnitsXYZFiles = angstrom_units ## files in the XYZ format are read/output in angstroms
+CalculationMode = gs  ## indicates what type of calculation will be run. Here gs means groundstate
+Dimensions = 3  ## indicates how many dimensions will be considered. Octopus can run in 0-4 dimensions
+PeriodicDimensions = 0 ## indicates in which directions the unit cell will be repeated
+MaximumIter = 1600  ## indidcates how many SCF loops the code will execute before ending
+
+PseudopotentialSet = hgh_lda  ## indicates which pseudopotential set the calculation will use
+XCFunctional = gga_xc_hle16  ## indicates which exchange correlation functional the calculation will use
+ConvEigenError = true  ## Forces the requirement that the eigenvalvues converge within 10^-6
+BoxShape = minimum  ## selects the shape of the area over which the real space mesh will be calculated
+Radius = 6.6*angstrom ## selects the size of the shape indicated in BoxShape
+Spacing = 0.18*angstrom ## selects the spacing of the real space mesh
+
+%Coordinates  ## the positions of each atom  given as a block
+'C' | 0.100*angstrom | 0.100*angstrom | 0.100*angstrom
+%
+
+ExtraStates = 3  ## how many states to be considered above the fermi level
+ExtraStatesToConverge = 3 ## how many of the ExtraStates to be converged
+DOSComputePDOS = true  ## tells the code to output the partial density of states
+Output = geometry + dos + wfs + density + elf + potential ## tells the code which results to output
+OutputFormat = xyz + cube ## tells the code in what format to write the outputs. Required flag is using Output
+
+##### For a periodic calculation you also need to include Kpoints for the fourier transforms.
+## %KPointsGrid  
+## 6 | 6 | 6   ## if the calculation is periodic in 2 dimensions this would be 6 | 6 | 1
+## %
+
+## KPointsUseSymmetries = yes  ## this flag is useful to speed up groundstate calculations, but should be set to ' = no' for bandstructure calculations
+#### and a KPath for a bandstructure calculation
+## %KPointsPath
+## 12 | 12 | 12    ## this line gives how many points in each segment. There should be one less entry than number of kpoints in your kpath. Here I have 4 kpoints and so 3 entries.
+## 0.0000000000 | 0.0000000000 | 0.0000000000 #Gamma
+## 0.3750000000 | 0.3750000000 | 0.7500000000 #K
+## 0.5000000000 | 0.2500000000 | 0.7500000000 #W
+## 0.5000000000 | 0.5000000000 | 0.5000000000 #L
+## %
