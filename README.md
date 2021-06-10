@@ -19,7 +19,7 @@ Or download the source code and install:
 
 ## How To Use
 
-Required `Octopus` files: **bandstructure**, **info**, **results.out**, **eigenvalues**, and **total-dos-efermi.dat**
+Required `Octopus` files: **bandstructure**, **info**, **results.out**(typically out.log), **eigenvalues**, and **total-dos-efermi.dat**
 
 ### API
 
@@ -32,7 +32,7 @@ file includes: number of kpoints, number of bands, energies:
 
     info_data = Info(filepath='./GaAs_HSE06')
 
-**results.out** file includes: kpoint weights
+**results.out** file includes: kpoint weights. **results.out** is obtained by redirecting the stdout to a new file named results.out when running **Octopus**.```Octopus > results.out```. More explanation found on the Octopus wiki [here](https://octopus-code.org/wiki/Manual:Running_Octopus)
 
     results_out = Results(filepath='./GaAs_HSE06', band_data.num_kpoints)
 
