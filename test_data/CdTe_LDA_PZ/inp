@@ -1,0 +1,60 @@
+#FromScratch=yes
+UnitsOutput = ev_angstrom
+ExperimentalFeatures = yes
+CalculationMode = unocc
+
+PeriodicDimensions = 3
+
+PseudopotentialSet = hgh_lda
+#XCFunctional = gga_xc_hle16
+a = 3.2413500*angstrom
+#b = 6 
+
+#BoxShape = parallelepiped
+Spacing = 0.12*angstrom
+
+%LatticeVectors
+0.0000000000 | 1.000000000 | 1.000000000
+1.000000000 | 0.0000000000 | 1.00000000
+1.000000000 | 1.000000000 | 0.0000000000
+%
+
+%LatticeParameters
+ a | a | a
+%
+
+%Species
+'Cd_sc' | species_pseudo | file | '/scratch/ompavlic/data_for_effmass/pseudopotentials/Cd_sc.hgh'
+%
+
+%ReducedCoordinates
+'Te' |0.7500 | 0.7500 | 0.7500
+'Cd_sc' |0.000 | 0.000 | 0.000
+%
+
+#%KPointsGrid
+# b | b | b
+#%
+%KpointsPath
+120 | 120 | 120 | 120
+0.0000000000 | 0.0000000000 | 0.0000000000 #gamma
+0.5000000000 | 0.0000000000 | 0.5000000000 #X
+0.3750000000 | 0.3750000000 | 0.7500000000 #K
+0.0000000000 | 0.0000000000 | 0.0000000000 #Gamma
+0.5000000000 | 0.5000000000 | 0.5000000000 #L
+%
+
+ExtraStates = 3
+ExtraStatesToConverge = 3
+#ConvEigenError = true
+ExperimentalFeatures = yes
+MaximumIter = 1000
+
+#BandStructureComputeProjections = true
+#DOSComputePDOS = true
+#Output = geometry + dos + elf
+#OutputFormat = cube + xyz
+#Output = potential + density + matrix_elements + mesh_r + dos + wfs_fourier + wfs + xc_density + wfs_sqmod + geometry + ELF + Bader #+tpa
+#OutputFormat = plane_x + plane_y + plane_z + matlab + meshgrid + xyz + dx #+json
+#OutputMatrixElements = ks_multipoles + momentum + ang_momentum + one_body + two_body
+#Output_KPT = density_kpt

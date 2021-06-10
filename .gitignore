@@ -1,3 +1,2 @@
-test_data/**
 gen_vasp/*
 !gen_vasp/.gitkeep

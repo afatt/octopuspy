@@ -1,0 +1,62 @@
+#FromScratch=yes
+UnitsOutput = ev_angstrom
+ExperimentalFeatures = yes
+CalculationMode = unocc
+
+PeriodicDimensions = 3
+
+PseudopotentialSet = hgh_lda
+#XCFunctional = gga_xc_hle16
+a = 2.8750910034*angstrom
+#b = 6 
+#RelativisticCorrection = spin_orbit
+#SpinComponents = spinors
+
+Spacing = 0.18*angstrom
+
+%LatticeVectors
+0.0000000000 | 1.0000000 | 1.0000000
+1.0000000 | 0.0000000000 | 1.0000000
+1.0000000 | 1.0000000 | 0.0000000000
+%
+
+%LatticeParameters
+ a | a | a
+%
+
+%Species
+'Ga_sc' | species_pseudo | file | '/pseudopotentials/Ga_sc.hgh'
+%
+
+%ReducedCoordinates
+'As' |-0.2500 | 0.7500 | 0.7500
+'Ga_sc' |0.000 | 0.000 | 0.000
+%
+
+#%KPointsGrid
+# b | b | b
+#%
+
+%KPointsPath
+120 | 120 | 120 | 120
+0.0000000000 | 0.0000000000 | 0.0000000000 #gamma
+0.5000000000 | 0.0000000000 | 0.5000000000 #X
+0.3750000000 | 0.3750000000 | 0.7500000000 #K
+0.0000000000 | 0.0000000000 | 0.0000000000 #gamma
+0.5000000000 | 0.5000000000 | 0.5000000000 #L
+%
+
+ExtraStates = 3
+ExtraStatesToConverge = 3
+ConvEigenError = true
+ExperimentalFeatures = yes
+MaximumIter = 1600
+
+#BandStructureComputeProjections = true
+#DOSComputePDOS = true
+#Output = dos + elf + geometry 
+#OutputFormat = xyz + cube
+#Output = potential + density + matrix_elements + mesh_r + dos + wfs_fourier + wfs + xc_density + wfs_sqmod + geometry + ELF + Bader #+tpa
+#OutputFormat = plane_x + plane_y + plane_z + matlab + meshgrid + xyz + dx #+json
+#OutputMatrixElements = ks_multipoles + momentum + ang_momentum + one_body + two_body
+#Output_KPT = density_kpt
