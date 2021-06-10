@@ -19,6 +19,7 @@ setup(
     author='Austin Fatt',
     author_email='afatt90@gmail.com, austin.d.fatt@navy.mil',
     url='https://github.com/afatt/octopuspy',
+    download_url='https://github.com/afatt/octopuspy/archive/refs/tags/v1.0.0.tar.gz',
     version=__version__,
     license='MIT',
     classifiers=[
