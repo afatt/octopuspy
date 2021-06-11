@@ -55,4 +55,4 @@ Garbage in equals garbage out and testing this package produced a lot of garbage
 
 Unittests are included with this package and can be run using:
 
-    python -m unittest discover
+    python3 -m unittest discover
