@@ -7,7 +7,7 @@ readme = 'README.md'
 long_description = open(readme).read()
 
 REQUIRES = [
-    'coverage',
+    'coverage==4.3.4',
     'cycler',
     'kiwisolver',
     'matplotlib',
