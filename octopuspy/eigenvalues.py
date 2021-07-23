@@ -7,6 +7,7 @@ Information contained in bandstructure file
 eigenvalues -> occupation, number of occupied bands
 '''
 
+import re
 import numpy as np
 
 class Eigenvalues():
@@ -51,8 +52,9 @@ class Eigenvalues():
         '''
 
         # find the index of the match and get numkpoints of lines results
-        match = ' #st  Spin   Eigenvalue      Occupation     Error'
-        start = self._eigenvalues.index(match)
+        pattern = '#st  Spin   Eigenvalue+\s+[a-zA-Z]+.+Error$'
+        matched_idx = [idx for idx, item in enumerate(self._eigenvalues) if re.search(pattern, item)]
+        start = matched_idx[0]
 
         # start at the second line not including the matched text
         eigenvalues_table = self._eigenvalues[start:][1:]
